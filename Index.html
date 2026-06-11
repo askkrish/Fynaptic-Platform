@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fynaptic Lending Platform — Concept Walkthrough v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#0E3B2E;--forest-deep:#081F18;--shell:#0B1512;--shell-card:#11231D;--shell-line:#1E3A30;
+  --teal:#2BA37E;--teal-soft:#7FD6B8;--amber:#E8A33D;--amber-soft:#F4CD8B;
+  --paper:#FAFAF7;--paper-dim:#F0EFE9;--ink:#15261F;--ink-soft:#5A6B62;--line:#E2E1D8;
+  --ok:#1E8E5A;--warn:#C9851A;--bad:#C24A3A;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--disp:'Fraunces',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--shell);color:#E8EFEA;font-family:var(--sans);font-size:15px;line-height:1.55}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--shell-line);position:sticky;top:0;background:rgba(11,21,18,.92);backdrop-filter:blur(8px);z-index:50}
+.brand{display:flex;align-items:center;gap:12px}
+.brandmark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--forest));display:flex;align-items:center;justify-content:center}
+.brandmark svg{width:20px;height:20px}
+.brandname{font-family:var(--disp);font-size:21px;font-weight:600;color:#F2F7F3}
+.brandname span{color:var(--teal-soft)}
+.brandsub{font-size:11px;color:#9DB5A9;letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+.chip-demo{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;border:1px solid var(--shell-line);border-radius:99px;padding:5px 12px;color:var(--amber-soft);text-transform:uppercase}
+
+.layout{display:grid;grid-template-columns:248px 1fr;min-height:calc(100vh - 63px)}
+@media(max-width:1080px){.layout{grid-template-columns:1fr}.rail{display:none}}
+.rail{border-right:1px solid var(--shell-line);padding:22px 14px;background:var(--forest-deep)}
+.rail h3{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#7F9C8F;margin:4px 8px 12px}
+.mod{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:10px;padding:9px 10px;margin-bottom:4px;color:#C7D8CE;transition:background .15s}
+.mod:hover{background:rgba(43,163,126,.08)}
+.mod.active{background:var(--shell-card);border-color:var(--shell-line);color:#fff}
+.mod .mnum{font-family:var(--mono);font-size:10px;color:var(--teal-soft);margin-top:3px;min-width:14px}
+.mod .mname{font-size:13px;font-weight:600;line-height:1.3}
+.mod .mmeta{font-size:11px;color:#7F9C8F;margin-top:2px;display:block}
+.railfoot{margin-top:22px;padding:14px 10px;border-top:1px solid var(--shell-line);font-size:11px;color:#7F9C8F;line-height:1.6}
+.railfoot b{color:#C7D8CE}
+
+.main{padding:0 0 80px;min-width:0}
+.view{display:none}
+.view.on{display:block}
+
+/* HOME */
+.hero{padding:54px 56px 38px;border-bottom:1px solid var(--shell-line);background:
+ radial-gradient(900px 340px at 12% -10%,rgba(43,163,126,.16),transparent 60%),
+ radial-gradient(700px 300px at 88% 0%,rgba(232,163,61,.10),transparent 55%)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-soft);margin-bottom:14px}
+.hero h1{font-family:var(--disp);font-size:42px;font-weight:600;line-height:1.12;color:#F4F8F4;max-width:760px}
+.hero h1 em{font-style:italic;color:var(--amber-soft)}
+.hero p.lede{margin-top:16px;max-width:640px;color:#AEC4B8;font-size:16px}
+.hero-stats{display:flex;gap:36px;margin-top:30px;flex-wrap:wrap}
+.hstat .hv{font-family:var(--mono);font-size:24px;font-weight:600;color:#F2F7F3}
+.hstat .hv span{color:var(--teal-soft);font-size:14px}
+.hstat .hl{font-size:11.5px;color:#7F9C8F;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.mapwrap{padding:40px 56px}
+.maphead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.maphead h2{font-family:var(--disp);font-size:24px;font-weight:600;color:#F2F7F3}
+.maphead .note{font-size:12px;color:#7F9C8F}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.mcard{background:var(--shell-card);border:1px solid var(--shell-line);border-radius:14px;padding:18px 18px 16px;position:relative;transition:transform .15s,border-color .15s;cursor:pointer}
+.mcard:hover{border-color:var(--teal);transform:translateY(-2px)}
+.mcard .mtag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--teal-soft);text-transform:uppercase}
+.mcard h4{font-family:var(--disp);font-size:18px;font-weight:600;margin:7px 0 7px;color:#F2F7F3}
+.mcard p{font-size:12.5px;color:#9DB5A9;line-height:1.55;min-height:58px}
+.mcard .mfoot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--shell-line);font-size:11px}
+.mcard .screens{font-family:var(--mono);color:#C7D8CE}
+.badge{border-radius:99px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.badge.live{background:rgba(43,163,126,.18);color:var(--teal-soft)}
+.badge.p2{background:rgba(232,163,61,.14);color:var(--amber-soft)}
+.intgwrap{padding:8px 56px 30px}
+.intgband{background:var(--forest-deep);border:1px solid var(--shell-line);border-radius:14px;padding:20px 24px}
+.intgband h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7F9C8F;margin-bottom:14px}
+.intgrow{display:flex;flex-wrap:wrap;gap:8px}
+.intg{font-family:var(--mono);font-size:11px;color:#C7D8CE;border:1px solid var(--shell-line);border-radius:8px;padding:6px 11px;background:rgba(255,255,255,.02)}
+.intg b{color:var(--teal-soft);font-weight:500}
+
+/* WALKTHROUGH (mobile) */
+.wt{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:0;align-items:start}
+@media(max-width:1320px){.wt{grid-template-columns:1fr}.annot{border-left:none;border-top:1px solid var(--shell-line);position:static;max-height:none}}
+.stage{padding:34px 40px 20px;display:flex;flex-direction:column;align-items:center}
+.stagehead{width:100%;max-width:680px;margin-bottom:18px}
+.crumbs{font-family:var(--mono);font-size:11px;color:#7F9C8F}
+.crumbs b{color:var(--teal-soft);font-weight:500}
+.stagehead h2{font-family:var(--disp);font-size:26px;font-weight:600;color:#F2F7F3;margin-top:8px}
+.stagehead p{color:#9DB5A9;font-size:13.5px;margin-top:6px;max-width:600px}
+.jtabs{display:flex;gap:8px;margin:0 0 18px}
+.jtab{background:var(--shell-card);border:1px solid var(--shell-line);color:#C7D8CE;border-radius:99px;padding:8px 16px;font-size:12.5px;font-weight:600}
+.jtab.on{border-color:var(--teal);color:#fff;background:rgba(43,163,126,.14)}
+.jtab .jm{font-family:var(--mono);font-size:10px;color:var(--amber-soft);margin-left:6px}
+
+.phone{width:352px;background:#05100C;border-radius:30px;padding:10px;box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px var(--shell-line)}
+.scr{background:var(--paper);border-radius:22px;overflow:hidden;height:660px;position:relative;color:var(--ink)}
+.mbar{display:flex;align-items:center;gap:8px;background:#EDEDE6;padding:8px 12px;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+.mbar .lock{font-size:10px}
+.mbar .murl{background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 12px;flex:1;color:var(--ink)}
+.mbar .pwa{color:var(--teal);font-weight:600}
+.screen{display:none;height:calc(100% - 33px);overflow-y:auto}
+.screen.on{display:block}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 2px;font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+.appbar{display:flex;align-items:center;gap:10px;padding:10px 16px 12px;border-bottom:1px solid var(--line);background:var(--paper)}
+.appbar .back{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:14px;display:flex;align-items:center;justify-content:center}
+.appbar h5{font-size:14.5px;font-weight:600}
+.appbar .sub{font-size:10.5px;color:var(--ink-soft)}
+.appbar .right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.pillsync{font-family:var(--mono);font-size:9px;border-radius:99px;padding:3px 8px}
+.pillsync.on{background:#E3F4EB;color:var(--ok)}
+.pbody{padding:14px 16px 22px}
+.fcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:11px}
+.fcard h6{font-size:12.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fcard .small,.small{font-size:11px;color:var(--ink-soft)}
+.klabel{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px}
+.input{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;background:#fff;color:var(--ink);display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.input .ph{color:#A6AFA8}
+.input.mono{font-family:var(--mono);font-size:12.5px}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;background:var(--forest);color:#fff;margin-top:8px}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10.5px;border-radius:99px;padding:4px 10px;font-weight:600;white-space:nowrap}
+.tag.green{background:#E3F4EB;color:var(--ok)}
+.tag.amber{background:#FBEFD9;color:var(--warn)}
+.tag.red{background:#FAE6E2;color:var(--bad)}
+.tag.grey{background:var(--paper-dim);color:var(--ink-soft)}
+.tag.navy{background:#E3EDF4;color:#1F5276}
+.vrow{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line);gap:10px}
+.vrow:last-child{border-bottom:none}
+.vrow .k{color:var(--ink-soft)}
+.vrow .v{font-weight:600;text-align:right}
+.vrow .v.mono{font-family:var(--mono);font-weight:500;font-size:12px}
+.check{display:flex;align-items:center;gap:9px;font-size:12.5px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.check:last-child{border-bottom:none}
+.dotok{width:18px;height:18px;border-radius:50%;background:var(--ok);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dotwait{width:18px;height:18px;border-radius:50%;border:2px solid var(--amber);flex-shrink:0}
+.loantype{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lt{border:1px solid var(--line);border-radius:13px;padding:12px 11px;background:#fff;text-align:left;position:relative}
+.lt .ic{font-size:19px}
+.lt h6{font-size:12px;font-weight:600;margin-top:6px;color:var(--ink)}
+.lt .small{display:block;margin-top:2px;font-size:10px}
+.lt.sel{border-color:var(--forest);box-shadow:0 0 0 2px rgba(14,59,46,.15)}
+.lt .corner{position:absolute;top:8px;right:9px;font-size:9px;font-weight:700;color:var(--teal)}
+.meter{height:9px;border-radius:99px;background:var(--paper-dim);overflow:hidden;margin:7px 0 5px}
+.meter i{display:block;height:100%;border-radius:99px}
+.gauge{display:flex;align-items:flex-end;gap:14px}
+.gauge .gv{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--ok);line-height:1}
+.gauge .gl{font-size:10.5px;color:var(--ink-soft);padding-bottom:3px}
+.docline{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.docline:last-child{border-bottom:none}
+.docthumb{width:34px;height:34px;border-radius:9px;background:var(--paper-dim);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.aichip{display:flex;gap:9px;background:linear-gradient(135deg,#0E3B2E,#16553F);color:#EAF6EF;border-radius:13px;padding:12px 13px;margin-bottom:11px;font-size:12px;line-height:1.5}
+.aichip .spark{font-size:15px}
+.aichip b{color:var(--amber-soft)}
+.geo{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);background:var(--paper-dim);border-radius:10px;padding:9px 12px;margin-bottom:10px}
+.bigok{text-align:center;padding:30px 10px 10px}
+.bigok .ring{width:74px;height:74px;border-radius:50%;background:#E3F4EB;color:var(--ok);font-size:34px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.bigok h4{font-family:var(--disp);font-size:20px;color:var(--ink)}
+.bigok p{font-size:12.5px;color:var(--ink-soft);margin-top:7px}
+.refid{font-family:var(--mono);font-size:12px;background:var(--paper-dim);border-radius:9px;padding:8px 12px;display:inline-block;margin-top:13px}
+.homehead{background:linear-gradient(150deg,var(--forest),#16553F);color:#EAF6EF;border-radius:16px;padding:15px 16px;margin-bottom:12px}
+.homehead .hi{font-size:12px;color:#BFE2D2}
+.homehead h4{font-family:var(--disp);font-size:18px;margin-top:2px}
+.homehead .row{display:flex;gap:18px;margin-top:12px}
+.homehead .hs .n{font-family:var(--mono);font-size:17px;font-weight:600}
+.homehead .hs .l{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:#9CCBB6;margin-top:1px}
+.task{display:flex;gap:11px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:9px}
+.task .tic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.task h6{font-size:12.5px;font-weight:600}
+.task .go{margin-left:auto;color:var(--ink-soft);font-size:15px}
+.otp{display:flex;gap:8px;justify-content:center;margin:10px 0 4px}
+.otp i{width:38px;height:44px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:17px;font-weight:600;font-style:normal;background:#fff}
+.faceframe{height:128px;border-radius:14px;background:radial-gradient(circle at 50% 42%,#DCE9E0 0 26%,var(--paper-dim) 27%);border:1.5px dashed var(--teal);position:relative;margin-bottom:9px}
+.faceframe .scanline{position:absolute;left:8%;right:8%;top:20%;height:2px;background:var(--teal);opacity:.7;animation:scan 2.4s ease-in-out infinite}
+@keyframes scan{0%,100%{top:18%}50%{top:74%}}
+.member{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.member:last-child{border-bottom:none}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--forest);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.member .mr{margin-left:auto}
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tstep{position:relative;padding:0 0 14px}
+.tstep::before{content:'';position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--ok);border:2px solid #fff;box-shadow:0 0 0 1px var(--ok)}
+.tstep.pend::before{background:#fff;box-shadow:0 0 0 1px var(--amber)}
+.tstep h6{font-size:12.5px;font-weight:600}
+.tstep .small{font-size:10.5px}
+.pnav{display:flex;align-items:center;gap:14px;margin-top:22px}
+.pnav button{background:var(--shell-card);border:1px solid var(--shell-line);color:#E8EFEA;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600}
+.pnav button:hover{border-color:var(--teal)}
+.pnav button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:7px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--shell-line);cursor:pointer;transition:all .15s}
+.dots i.on{background:var(--teal);width:22px;border-radius:99px}
+.jlgline{margin-top:13px;font-size:12px;color:#7F9C8F}
+.jlgline button{background:none;border:none;color:var(--amber-soft);font-size:12px;text-decoration:underline;text-underline-offset:3px;padding:0}
+.annot{border-left:1px solid var(--shell-line);background:var(--forest-deep);min-height:100%;padding:34px 26px 60px;position:sticky;top:63px;max-height:calc(100vh - 63px);overflow-y:auto}
+.annot h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:6px}
+.annot h2{font-family:var(--disp);font-size:20px;font-weight:600;color:#F2F7F3;margin-bottom:10px}
+.annot p.desc{font-size:13px;color:#AEC4B8;margin-bottom:18px;line-height:1.6}
+.ablock{margin-bottom:18px}
+.ablock h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7F9C8F;margin-bottom:9px}
+.ruleline{display:flex;gap:9px;font-size:12px;color:#C7D8CE;padding:7px 0;border-bottom:1px dashed var(--shell-line);line-height:1.5}
+.ruleline:last-child{border-bottom:none}
+.ruleline .rb{color:var(--teal-soft);font-family:var(--mono);font-size:10px;margin-top:2px;white-space:nowrap}
+.regnote{background:rgba(232,163,61,.08);border:1px solid rgba(232,163,61,.3);border-radius:11px;padding:12px 14px;font-size:12px;color:#EAD9B8;line-height:1.6;margin-top:4px}
+.regnote b{color:var(--amber-soft)}
+
+/* DESKTOP MODULE SECTIONS */
+.dwrap{padding:34px 48px;max-width:1180px}
+.dintro{margin-bottom:26px;max-width:760px}
+.dintro .crumbs{margin-bottom:8px}
+.dintro h2{font-family:var(--disp);font-size:28px;font-weight:600;color:#F2F7F3}
+.dintro p{color:#9DB5A9;font-size:14px;margin-top:8px;line-height:1.6}
+.dscreen{margin-bottom:46px}
+.dhead{margin-bottom:12px}
+.dhead h3{font-family:var(--disp);font-size:19px;font-weight:600;color:#F2F7F3}
+.dhead h3 .snum{font-family:var(--mono);font-size:11px;color:var(--teal-soft);margin-right:10px;vertical-align:2px}
+.dhead p{font-size:13px;color:#9DB5A9;margin-top:5px;max-width:720px;line-height:1.55}
+.browser{background:var(--paper);border-radius:14px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.4),0 0 0 1px var(--shell-line);color:var(--ink)}
+.bbar{display:flex;align-items:center;gap:10px;background:#EDEDE6;padding:9px 14px;border-bottom:1px solid var(--line)}
+.bdots{display:flex;gap:5px}
+.bdots i{width:9px;height:9px;border-radius:50%;background:#CFCEC4}
+.burl{font-family:var(--mono);font-size:11px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 14px;flex:1;max-width:420px}
+.bbody{padding:18px 20px 22px;background:linear-gradient(180deg,#FCFCFA,var(--paper))}
+.bhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.bhead h4{font-size:15px;font-weight:700;color:var(--ink)}
+.bhead .sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.bhead .actions{display:flex;gap:8px}
+.miniBtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 13px;font-size:11.5px;font-weight:600;color:var(--ink)}
+.miniBtn.pri{background:var(--forest);color:#fff;border-color:var(--forest)}
+.kpirow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.kpi .kv{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink)}
+.kpi .kv.g{color:var(--ok)}.kpi .kv.a{color:var(--warn)}.kpi .kv.r{color:var(--bad)}
+.kpi .kl{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:3px}
+.tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12px}
+.tbl th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);padding:9px 12px;background:var(--paper-dim);border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid #EFEEE6;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .mono{font-family:var(--mono);font-size:11.5px}
+.tbl .r{text-align:right}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:900px){.twocol{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.panel h5{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.govstrip{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:#9DB5A9;margin-top:10px;padding:10px 14px;border:1px dashed var(--shell-line);border-radius:10px;line-height:1.6}
+.govstrip b{color:var(--teal-soft);font-weight:500}
+.rbar{display:flex;align-items:center;gap:10px;font-size:11.5px;margin-bottom:7px}
+.rbar .rl{width:170px;color:var(--ink-soft);flex-shrink:0}
+.rbar .rtrack{flex:1;height:9px;border-radius:99px;background:var(--paper-dim);overflow:hidden}
+.rbar .rtrack i{display:block;height:100%;border-radius:99px}
+.rbar .rv{font-family:var(--mono);font-size:11px;width:54px;text-align:right}
+.offer{border:1px solid var(--line);border-radius:13px;background:#fff;padding:14px 15px;position:relative}
+.offer.rec{border-color:var(--forest);box-shadow:0 0 0 2px rgba(14,59,46,.12)}
+.offer .rectag{position:absolute;top:-9px;left:14px;background:var(--amber);color:#3A2A09;font-size:9.5px;font-weight:700;letter-spacing:.06em;border-radius:99px;padding:3px 10px;text-transform:uppercase}
+.offer h5{font-size:13px;font-weight:700}
+.offer .rate{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--ink);margin:8px 0 2px}
+.offergrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.offergrid{grid-template-columns:1fr}}
+.wa{background:#E7F6EC;border:1px solid #BFE3CB;border-radius:14px;padding:12px 13px;font-size:12px;line-height:1.6;max-width:340px}
+.wa .wh{font-size:10px;color:var(--ink-soft);margin-bottom:6px;display:flex;justify-content:space-between}
+.wa .bubble{background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.svgbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.svgbox h5{font-size:12.5px;font-weight:700;margin-bottom:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--ink-soft);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:18px 56px;border-top:1px solid var(--shell-line);font-size:12px;color:#7F9C8F;flex-wrap:wrap;gap:8px}
+.poweredby{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.flochip{display:inline-flex;align-items:center;gap:5px;background:#FAFAF7;border-radius:9px;padding:5px 11px 5px 9px;line-height:1}
+.flochip .flomark{display:block}
+.flochip .floword{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:-.02em;color:#1F3056}
+.flochip sup{font-size:8px;color:#1F3056;font-weight:600;margin-left:1px}
+.credit{font-size:12px;color:#9DB5A9}
+/* roadmap */
+.rmap{position:relative;padding-left:26px;max-width:840px}
+.rmap::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--shell-line)}
+.rphase{position:relative;margin-bottom:26px;background:var(--shell-card);border:1px solid var(--shell-line);border-radius:14px;padding:18px 20px}
+.rphase::before{content:'';position:absolute;left:-24px;top:24px;width:13px;height:13px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(43,163,126,.18)}
+.rphase.p2::before{background:var(--amber);box-shadow:0 0 0 4px rgba(232,163,61,.16)}
+.rphase h4{font-family:var(--disp);font-size:19px;color:#F2F7F3}
+.rphase .ph{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-soft);margin-bottom:6px}
+.rphase.p2 .ph{color:var(--amber-soft)}
+.rphase p{font-size:13px;color:#9DB5A9;margin-top:7px;line-height:1.6}
+.rphase ul{margin:10px 0 0 18px;font-size:12.5px;color:#C7D8CE;line-height:1.9}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--shell-card);border:1px solid var(--amber);color:#F4E9D2;border-radius:12px;padding:11px 20px;font-size:13px;z-index:99;transition:transform .25s;box-shadow:0 12px 36px rgba(0,0,0,.5)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brandmark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8 7 5 9.5 5 14a7 7 0 0 0 14 0c0-4.5-3-7-7-11Z" stroke="#EAF6EF" stroke-width="1.7"/><path d="M12 21V11m0 0c1.4-1 2.8-1.4 4.2-1.2M12 14c-1.3-.9-2.6-1.3-4-1.1" stroke="#F4CD8B" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="brandname">Fyn<span>aptic</span></div>
+      <div class="brandsub">Lending Platform</div>
+    </div>
+  </div>
+  <span class="chip-demo">Concept Walkthrough · v2</span>
+</header>
+
+<div class="layout">
+<nav class="rail" aria-label="Platform modules">
+  <h3>Platform Modules</h3>
+  <button class="mod active" data-v="home" onclick="nav('home',this)"><span class="mnum">00</span><span><span class="mname">Platform Home</span><span class="mmeta">Module map &amp; architecture</span></span></button>
+  <button class="mod" data-v="fo" onclick="nav('fo',this)"><span class="mnum">01</span><span><span class="mname">Field Officer App</span><span class="mmeta">2 journeys · 14 screens</span></span></button>
+  <button class="mod" data-v="m2" onclick="nav('m2',this)"><span class="mnum">02</span><span><span class="mname">Marketplace Engine</span><span class="mmeta">5 screens</span></span></button>
+  <button class="mod" data-v="m3" onclick="nav('m3',this)"><span class="mnum">03</span><span><span class="mname">Credit Underwriting</span><span class="mmeta">5 screens</span></span></button>
+  <button class="mod" data-v="m4" onclick="nav('m4',this)"><span class="mnum">04</span><span><span class="mname">LMS &amp; Collections</span><span class="mmeta">6 screens</span></span></button>
+  <button class="mod" data-v="m5" onclick="nav('m5',this)"><span class="mnum">05</span><span><span class="mname">Commission Engine</span><span class="mmeta">3 screens</span></span></button>
+  <button class="mod" data-v="m6" onclick="nav('m6',this)"><span class="mnum">06</span><span><span class="mname">Master BC Cockpit</span><span class="mmeta">4 screens</span></span></button>
+  <button class="mod" data-v="m7" onclick="nav('m7',this)"><span class="mnum">07</span><span><span class="mname">Communications</span><span class="mmeta">2 screens</span></span></button>
+  <button class="mod" data-v="m8" onclick="nav('m8',this)"><span class="mnum">08</span><span><span class="mname">Tenant Administration</span><span class="mmeta">2 screens</span></span></button>
+  <button class="mod" data-v="rm" onclick="nav('rm',this)"><span class="mnum">09</span><span><span class="mname">Delivery Roadmap</span><span class="mmeta">Phase 1 → Phase 2</span></span></button>
+  <div class="railfoot"><b>41 screens · 6 personas</b><br>Field Officer · Sub BC Admin · Fynaptic Credit · Bank Partner · Customer · Platform Admin</div>
+</nav>
+
+<main class="main">
+
+<!-- ============ HOME ============ -->
+<section class="view on" id="v-home">
+  <div class="hero">
+    <div class="eyebrow">Fynaptic Solutions · Digital Lending Marketplace &amp; Master BC Platform</div>
+    <h1>One platform from the <em>first field visit</em> to the last rupee collected.</h1>
+    <p class="lede">Every customer, Sub BC, field officer, lender and rupee of commission — originated, underwritten, disbursed, serviced and settled on a single governed system. Built for the way microfinance actually works on the ground in Tamil Nadu.</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hv">9</div><div class="hl">Modules</div></div>
+      <div class="hstat"><div class="hv">41</div><div class="hl">Screens</div></div>
+      <div class="hstat"><div class="hv">2</div><div class="hl">Journeys — BC &amp; DSA</div></div>
+      <div class="hstat"><div class="hv">14<span>+</span></div><div class="hl">Integrations</div></div>
+      <div class="hstat"><div class="hv">3</div><div class="hl">Underwriting tiers</div></div>
+    </div>
+  </div>
+  <div class="mapwrap">
+    <div class="maphead"><h2>The platform map</h2><span class="note">Every module below is live in this walkthrough. A responsive web application — desktop for back office, mobile browser (PWA) for the field.</span></div>
+    <div class="modgrid">
+      <div class="mcard" onclick="nav('fo')" tabindex="0" role="button"><div class="mtag">Module 01 · Mobile web</div><h4>Field Officer App</h4><p>Two complete journeys: a BC-model dairy loan with the RBI household gate, and a DSA-model MSME working capital file. Agent-code routing decides which machinery fires.</p><div class="mfoot"><span class="screens">14 screens</span><span class="badge live">2 journeys</span></div></div>
+      <div class="mcard" onclick="nav('m2')" tabindex="0" role="button"><div class="mtag">Module 02 · Engine</div><h4>Marketplace Engine</h4><p>Bureau pull, AI risk grading with reason codes, lender eligibility matrix, and side-by-side offer aggregation across banks and NBFCs.</p><div class="mfoot"><span class="screens">5 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m3')" tabindex="0" role="button"><div class="mtag">Module 03 · Workflow</div><h4>Credit Underwriting</h4><p>Three-tier maker–checker: Sub BC officer → Fynaptic credit with AI recommendation and human override → bank partner decision. Every action audit-logged.</p><div class="mfoot"><span class="screens">5 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m6')" tabindex="0" role="button"><div class="mtag">Module 06 · Command</div><h4>Master BC Cockpit</h4><p>Sub BC scorecards, vintage curves, NPA and FLDG tracking, regulatory reporting — the risk-reward view of the whole network in one seat.</p><div class="mfoot"><span class="screens">4 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m4')" tabindex="0" role="button"><div class="mtag">Module 04 · Servicing</div><h4>LMS &amp; Collections</h4><p>EMI schedules, DPD buckets and roll rates, AI early-warning signals before delinquency, prioritised field worklists and PTP discipline.</p><div class="mfoot"><span class="screens">6 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m5')" tabindex="0" role="button"><div class="mtag">Module 05 · Money</div><h4>Commission Engine</h4><p>Versioned waterfalls from lender to Master BC to Sub BC to officer, real-time earnings, settlement reconciliation and clawbacks.</p><div class="mfoot"><span class="screens">3 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m7')" tabindex="0" role="button"><div class="mtag">Module 07 · Channels</div><h4>Communications</h4><p>Tamil-first WhatsApp, voice and SMS journeys across the lifecycle — consent-tracked, DLT-registered, opt-out aware.</p><div class="mfoot"><span class="screens">2 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('m8')" tabindex="0" role="button"><div class="mtag">Module 08 · Scale</div><h4>Tenant Administration</h4><p>Onboard a new Sub BC in a morning: entity KYB, products, commission grid, branding and user hierarchy — growth without head-office drag.</p><div class="mfoot"><span class="screens">2 screens</span><span class="badge live">Live</span></div></div>
+      <div class="mcard" onclick="nav('rm')" tabindex="0" role="button"><div class="mtag">Module 09 · Direction</div><h4>Delivery Roadmap</h4><p>Phase 1 ships as a responsive web app. Phase 2 adds a native field shell — offline-first sync and Aadhaar biometric devices — on the same codebase.</p><div class="mfoot"><span class="screens">2 phases</span><span class="badge p2">Indicative</span></div></div>
+    </div>
+  </div>
+  <div class="intgwrap">
+    <div class="intgband">
+      <h3>Under the hood — integration fabric</h3>
+      <div class="intgrow">
+        <span class="intg"><b>KYC</b> PAN · Aadhaar XML/OTP · CKYC · Liveness · Udyam · GSTIN</span>
+        <span class="intg"><b>Bureau</b> Consumer · MFI bureau</span>
+        <span class="intg"><b>BSA</b> Account Aggregator · statement parser</span>
+        <span class="intg"><b>Sign</b> Aadhaar eSign · eStamp</span>
+        <span class="intg"><b>Pay</b> eNACH · UPI AutoPay · Penny-drop</span>
+        <span class="intg"><b>Comms</b> WhatsApp · Voice · SMS DLT</span>
+        <span class="intg"><b>Geo</b> Geo-tag · Route maps</span>
+        <span class="intg"><b>Reg</b> Bureau reporting · KFS register · Audit log</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ FIELD OFFICER ============ -->
+<section class="view" id="v-fo">
+<div class="wt">
+<div class="stage">
+  <div class="stagehead">
+    <div class="crumbs">Module 01 · <b>Field Officer App</b> · responsive web (PWA) · screen <b id="scrnum">1</b> of <b id="scrtot">8</b></div>
+    <h2 id="scrtitle"></h2>
+    <p id="scrdesc"></p>
+  </div>
+  <div class="jtabs">
+    <button class="jtab on" id="jtabA" onclick="setJourney('A')">Journey 1 · Dairy loan <span class="jm">BC MODEL</span></button>
+    <button class="jtab" id="jtabB" onclick="setJourney('B')">Journey 2 · MSME working capital <span class="jm">DSA MODEL</span></button>
+  </div>
+
+  <div class="phone">
+    <div class="scr">
+      <div class="mbar"><span class="lock">🔒</span><span class="murl">field.fynaptic.in</span><span class="pwa">⊕ Installed</span></div>
+
+      <!-- ===== JOURNEY A (BC, dairy) ===== -->
+      <div id="JA">
+        <div class="screen on" id="a1">
+          <div class="statusbar"><span>09:12</span><span>4G</span></div>
+          <div style="padding:30px 22px 0;text-align:center">
+            <div class="brandmark" style="margin:0 auto 14px;width:52px;height:52px;border-radius:14px"><svg viewBox="0 0 24 24" fill="none" style="width:30px;height:30px"><path d="M12 3C8 7 5 9.5 5 14a7 7 0 0 0 14 0c0-4.5-3-7-7-11Z" stroke="#EAF6EF" stroke-width="1.7"/><path d="M12 21V11m0 0c1.4-1 2.8-1.4 4.2-1.2M12 14c-1.3-.9-2.6-1.3-4-1.1" stroke="#F4CD8B" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div style="font-family:var(--disp);font-size:22px;font-weight:600;color:var(--ink)">Fynaptic Field</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-top:3px">வயல்வெளியில் இருந்து வங்கி வரை</div>
+          </div>
+          <div class="pbody" style="padding-top:22px">
+            <div class="klabel">Agent code</div>
+            <div class="input mono">FYN-TN-0231 <span class="tag green">BC model</span></div>
+            <div class="klabel">Mobile PIN</div>
+            <div class="input mono">••••&nbsp;&nbsp;<span class="ph" style="font-family:var(--sans);font-size:11px">Biometric available</span></div>
+            <button class="btn">Sign in</button>
+            <div style="margin-top:14px" class="fcard">
+              <h6>Routing by agent code <span class="tag grey">Auto</span></h6>
+              <div class="vrow"><span class="k">FYN-TN-02xx</span><span class="v">Sub BC · Sri Amman Agencies</span></div>
+              <div class="vrow"><span class="k">Model</span><span class="v">BC — full lifecycle</span></div>
+              <div class="vrow"><span class="k">Branch</span><span class="v">Villupuram</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen" id="a2">
+          <div class="statusbar"><span>09:14</span><span>4G</span></div>
+          <div class="pbody">
+            <div class="homehead">
+              <div class="hi">வணக்கம் · Good morning</div>
+              <h4>Senthil Kumar M</h4>
+              <div style="font-size:10.5px;color:#9CCBB6;font-family:var(--mono);margin-top:2px">FYN-TN-0231 · Sri Amman Agencies · Villupuram</div>
+              <div class="row">
+                <div class="hs"><div class="n">3</div><div class="l">New leads</div></div>
+                <div class="hs"><div class="n">2</div><div class="l">Collections</div></div>
+                <div class="hs"><div class="n">1</div><div class="l">Centre meet</div></div>
+                <div class="hs"><div class="n">₹86K</div><div class="l">Due today</div></div>
+              </div>
+            </div>
+            <div class="task"><div class="tic" style="background:#E3F4EB">📝</div><div><h6>New enquiry — Lakshmi Devi</h6><div class="small">Dairy working capital · Sithalapakkam village</div></div><div class="go">›</div></div>
+            <div class="task"><div class="tic" style="background:#FBEFD9">💰</div><div><h6>EMI collection — 2 accounts</h6><div class="small">₹4,860 due · Kanchipuram route</div></div><div class="go">›</div></div>
+            <div class="task"><div class="tic" style="background:#E3EDF4">👥</div><div><h6>Centre meeting — Magizham JLG</h6><div class="small">11:00 AM · attendance + collection</div></div><div class="go">›</div></div>
+            <div class="geo" style="margin-top:12px">⇅ Offline queue: 0 pending · Last sync 09:13 AM</div>
+          </div>
+        </div>
+        <div class="screen" id="a3">
+          <div class="statusbar"><span>09:18</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>New enquiry</h5><div class="sub">Step 1 of 5 · Product selection</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="klabel" style="margin-bottom:8px">Choose loan product</div>
+            <div class="loantype">
+              <button class="lt sel"><span class="ic">🐄</span><h6>Dairy / Agri-Allied</h6><span class="small">₹25K – ₹1L · 12–36 mo</span><span class="corner">✓</span></button>
+              <button class="lt"><span class="ic">🏪</span><h6>Micro Business</h6><span class="small">₹25K – ₹1L · individual</span></button>
+              <button class="lt"><span class="ic">👥</span><h6>Group (JLG)</h6><span class="small">5 members · joint liability</span></button>
+              <button class="lt"><span class="ic">🏭</span><h6>MSME Working Capital</h6><span class="small">₹1L – ₹10L · DSA route</span></button>
+              <button class="lt"><span class="ic">🌾</span><h6>Farm Input</h6><span class="small">Seasonal · bullet option</span></button>
+              <button class="lt"><span class="ic">🛵</span><h6>Consumer Durable</h6><span class="small">Asset-linked</span></button>
+            </div>
+            <div class="fcard" style="margin-top:12px">
+              <h6>Applicant</h6>
+              <div class="vrow"><span class="k">Name</span><span class="v">Lakshmi Devi R</span></div>
+              <div class="vrow"><span class="k">Mobile</span><span class="v mono">98•••• 4412</span></div>
+              <div class="vrow"><span class="k">Village</span><span class="v">Sithalapakkam, Kanchipuram</span></div>
+              <div class="vrow"><span class="k">Purpose</span><span class="v">2nd milch animal</span></div>
+              <div class="vrow"><span class="k">Amount sought</span><span class="v mono">₹60,000 · 24 mo</span></div>
+            </div>
+            <button class="btn">Continue to KYC</button>
+          </div>
+        </div>
+        <div class="screen" id="a4">
+          <div class="statusbar"><span>09:23</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>KYC verification</h5><div class="sub">Step 2 of 5 · Lakshmi Devi R</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>PAN <span class="tag green">Verified</span></h6>
+              <div class="vrow"><span class="k">Number</span><span class="v mono">DKJPL••••7F</span></div>
+              <div class="vrow"><span class="k">Name match</span><span class="v">98%</span></div>
+            </div>
+            <div class="fcard"><h6>Aadhaar OTP <span class="tag green">Verified</span></h6>
+              <div class="otp"><i>4</i><i>7</i><i>2</i><i>•</i><i>•</i><i>•</i></div>
+              <div class="small" style="text-align:center">XML downloaded · address auto-filled</div>
+            </div>
+            <div class="fcard"><h6>Liveness check <span class="tag amber">In progress</span></h6>
+              <div class="faceframe"><div class="scanline"></div></div>
+              <div class="small">Face match vs Aadhaar photo · anti-spoof on-device</div>
+            </div>
+            <div class="check"><span class="dotok">✓</span> CKYC registry — record found (KIN •••8841)</div>
+            <button class="btn">Continue to household assessment</button>
+          </div>
+        </div>
+        <div class="screen" id="a5">
+          <div class="statusbar"><span>09:31</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Household assessment</h5><div class="sub">Step 3 of 5 · RBI MFI Directions, 2022</div></div><div class="right"><span class="tag navy">REG</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>Household members &amp; income</h6>
+              <div class="member"><span class="avatar">LD</span> Lakshmi Devi · dairy &amp; tailoring <span class="mr" style="font-family:var(--mono);font-size:11.5px">₹11,500/mo</span></div>
+              <div class="member"><span class="avatar">RM</span> Raman (spouse) · farm labour <span class="mr" style="font-family:var(--mono);font-size:11.5px">₹8,500/mo</span></div>
+              <div class="member"><span class="avatar">PR</span> Priya (daughter) · student <span class="mr" style="font-family:var(--mono);font-size:11.5px">—</span></div>
+            </div>
+            <div class="fcard"><h6>Annual household income</h6>
+              <div class="gauge"><div class="gv" style="font-size:24px;color:var(--ink)">₹2.40L</div><div class="gl">vs ₹3.00L ceiling</div></div>
+              <div class="meter"><i style="width:80%;background:linear-gradient(90deg,var(--ok),#6BBF8E)"></i></div>
+              <div class="tagrow"><span class="tag green">Within ceiling — microfinance eligible</span></div>
+            </div>
+            <div class="fcard"><h6>Repayment obligation (FOIR)</h6>
+              <div class="gauge"><div class="gv">41%</div><div class="gl">of monthly income<br>limit ≤ 50%</div></div>
+              <div class="meter"><i style="width:82%;background:linear-gradient(90deg,var(--ok),var(--amber))"></i></div>
+              <div class="vrow"><span class="k">Existing — SHG loan</span><span class="v mono">₹2,100/mo</span></div>
+              <div class="vrow"><span class="k">Proposed EMI</span><span class="v mono">₹3,180/mo</span></div>
+              <div class="vrow"><span class="k">Headroom</span><span class="v mono" style="color:var(--ok)">₹1,820/mo</span></div>
+            </div>
+            <button class="btn">Assessment passed — continue</button>
+          </div>
+        </div>
+        <div class="screen" id="a6">
+          <div class="statusbar"><span>09:40</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Documents &amp; banking</h5><div class="sub">Step 4 of 5</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>Capture checklist</h6>
+              <div class="docline"><div class="docthumb">🪪</div> Aadhaar (XML) <span style="margin-left:auto" class="tag green">Done</span></div>
+              <div class="docline"><div class="docthumb">💳</div> PAN <span style="margin-left:auto" class="tag green">Done</span></div>
+              <div class="docline"><div class="docthumb">🏠</div> Residence photo · geo-tagged <span style="margin-left:auto" class="tag green">Done</span></div>
+              <div class="docline"><div class="docthumb">🐄</div> Asset photo — cattle shed <span style="margin-left:auto" class="tag amber">Capture</span></div>
+              <div class="docline"><div class="docthumb">🏦</div> Bank statement · 6 mo <span style="margin-left:auto" class="tag green">Parsed</span></div>
+            </div>
+            <div class="aichip"><span class="spark">✦</span><span><b>Statement analysis</b> — Canara SB a/c: avg balance ₹3,840, dairy society credit ₹9,200–11,800/mo on the 7th, 0 bounces in 6 months, 1 SHG debit ₹2,100/mo. Declared income pattern <b>consistent</b>.</span></div>
+            <div class="fcard"><h6>Insurance bundle <span class="tag grey">Optional</span></h6>
+              <div class="vrow"><span class="k">Credit-life cover</span><span class="v">₹60,000 · ₹318/yr</span></div>
+              <div class="vrow"><span class="k">Cattle insurance</span><span class="v">Quote at offer stage</span></div>
+            </div>
+            <button class="btn">Continue to review</button>
+          </div>
+        </div>
+        <div class="screen" id="a7">
+          <div class="statusbar"><span>11:02</span><span>3G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Group lending (JLG)</h5><div class="sub">Magizham group · Sithalapakkam</div></div><div class="right"><span class="tag grey">Optional flow</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>Group status <span class="tag amber">CGT 2 of 3</span></h6>
+              <div class="member"><span class="avatar">LD</span> Lakshmi Devi · leader <span class="mr"><span class="tag green">KYC ✓</span></span></div>
+              <div class="member"><span class="avatar">MV</span> Malliga V <span class="mr"><span class="tag green">KYC ✓</span></span></div>
+              <div class="member"><span class="avatar">SK</span> Selvi K <span class="mr"><span class="tag green">KYC ✓</span></span></div>
+              <div class="member"><span class="avatar">AN</span> Anjalai N <span class="mr"><span class="tag amber">Pending</span></span></div>
+              <div class="member"><span class="avatar">VT</span> Valli T <span class="mr"><span class="tag green">KYC ✓</span></span></div>
+            </div>
+            <div class="fcard"><h6>Training &amp; recognition</h6>
+              <div class="check"><span class="dotok">✓</span> CGT day 1 — product, joint liability, pricing</div>
+              <div class="check"><span class="dotok">✓</span> CGT day 2 — repayment discipline, grievance</div>
+              <div class="check"><span class="dotwait"></span> CGT day 3 — scheduled 14 Jun, 11:00</div>
+              <div class="check"><span class="dotwait"></span> GRT — branch manager visit pending</div>
+            </div>
+            <div class="fcard"><h6>Centre meeting</h6>
+              <div class="vrow"><span class="k">Schedule</span><span class="v">Every Tue · 11:00</span></div>
+              <div class="vrow"><span class="k">Last attendance</span><span class="v">5 / 5</span></div>
+            </div>
+            <button class="btn ghost">Back to individual flow</button>
+          </div>
+        </div>
+        <div class="screen" id="a8">
+          <div class="statusbar"><span>09:47</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Review &amp; submit</h5><div class="sub">Step 5 of 5</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="geo">📍 12.8342° N, 79.7036° E · Sithalapakkam · 09:46:12 · device FYN-MOB-114</div>
+            <div class="fcard"><h6>Application summary</h6>
+              <div class="vrow"><span class="k">Applicant</span><span class="v">Lakshmi Devi R</span></div>
+              <div class="vrow"><span class="k">Product</span><span class="v">Dairy / Agri-Allied · ₹60,000 · 24 mo</span></div>
+              <div class="vrow"><span class="k">KYC</span><span class="v" style="color:var(--ok)">Complete</span></div>
+              <div class="vrow"><span class="k">RBI assessment</span><span class="v" style="color:var(--ok)">Passed · FOIR 41%</span></div>
+              <div class="vrow"><span class="k">Documents</span><span class="v">5 of 5</span></div>
+              <div class="vrow"><span class="k">Consent</span><span class="v">Bureau + comms · OTP ✓</span></div>
+            </div>
+            <div class="bigok">
+              <div class="ring">✓</div>
+              <h4>Sent to Marketplace Engine</h4>
+              <p>Lender matching has started. Lakshmi gets a<br>Tamil WhatsApp confirmation now.</p>
+              <div class="refid">ENQ-2026-061-00482</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== JOURNEY B (DSA, MSME) ===== -->
+      <div id="JB" style="display:none">
+        <div class="screen on" id="b1">
+          <div class="statusbar"><span>10:05</span><span>4G</span></div>
+          <div style="padding:30px 22px 0;text-align:center">
+            <div class="brandmark" style="margin:0 auto 14px;width:52px;height:52px;border-radius:14px"><svg viewBox="0 0 24 24" fill="none" style="width:30px;height:30px"><path d="M12 3C8 7 5 9.5 5 14a7 7 0 0 0 14 0c0-4.5-3-7-7-11Z" stroke="#EAF6EF" stroke-width="1.7"/><path d="M12 21V11m0 0c1.4-1 2.8-1.4 4.2-1.2M12 14c-1.3-.9-2.6-1.3-4-1.1" stroke="#F4CD8B" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div style="font-family:var(--disp);font-size:22px;font-weight:600;color:var(--ink)">Fynaptic Field</div>
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-top:3px">Same app · different model</div>
+          </div>
+          <div class="pbody" style="padding-top:22px">
+            <div class="klabel">Agent code</div>
+            <div class="input mono">FYN-DSA-1104 <span class="tag amber">DSA model</span></div>
+            <div class="klabel">Mobile PIN</div>
+            <div class="input mono">••••</div>
+            <button class="btn">Sign in</button>
+            <div style="margin-top:14px" class="fcard">
+              <h6>Routing by agent code <span class="tag grey">Auto</span></h6>
+              <div class="vrow"><span class="k">FYN-DSA-11xx</span><span class="v">Senthamarai Associates</span></div>
+              <div class="vrow"><span class="k">Model</span><span class="v">DSA — originate &amp; track</span></div>
+              <div class="vrow"><span class="k">Territory</span><span class="v">Salem</span></div>
+              <div class="vrow"><span class="k">Servicing</span><span class="v">Owned by lender</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen" id="b2">
+          <div class="statusbar"><span>10:11</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>New enquiry</h5><div class="sub">Step 1 of 4 · MSME Working Capital</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>Business profile</h6>
+              <div class="vrow"><span class="k">Applicant</span><span class="v">Murugan S</span></div>
+              <div class="vrow"><span class="k">Entity</span><span class="v">Murugan Garments (proprietor)</span></div>
+              <div class="vrow"><span class="k">Activity</span><span class="v">Job-work stitching · 6 machines</span></div>
+              <div class="vrow"><span class="k">Location</span><span class="v">Ammapet, Salem</span></div>
+              <div class="vrow"><span class="k">Vintage</span><span class="v">7 years</span></div>
+            </div>
+            <div class="fcard"><h6>Requirement</h6>
+              <div class="vrow"><span class="k">Amount</span><span class="v mono">₹4,00,000</span></div>
+              <div class="vrow"><span class="k">Tenor</span><span class="v mono">12 months</span></div>
+              <div class="vrow"><span class="k">Purpose</span><span class="v">Fabric purchase · Aadi season orders</span></div>
+            </div>
+            <div class="fcard"><h6>Registrations</h6>
+              <div class="vrow"><span class="k">Udyam</span><span class="v mono">UDYAM-TN-20-00••••3</span></div>
+              <div class="vrow"><span class="k">GSTIN</span><span class="v mono">33ABCPM••••1Z5</span></div>
+            </div>
+            <button class="btn">Continue to KYC</button>
+          </div>
+        </div>
+        <div class="screen" id="b3">
+          <div class="statusbar"><span>10:18</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>KYC &amp; business checks</h5><div class="sub">Step 2 of 4 · Murugan S</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="check"><span class="dotok">✓</span> PAN verified · name match 99%</div>
+            <div class="check"><span class="dotok">✓</span> Aadhaar OTP · XML downloaded</div>
+            <div class="check"><span class="dotok">✓</span> Udyam registration — Micro · active</div>
+            <div class="check"><span class="dotok">✓</span> GSTIN active · returns filed to Apr 2026</div>
+            <div class="check"><span class="dotok">✓</span> Shop photo · geo-tagged, Ammapet</div>
+            <div class="fcard" style="margin-top:12px"><h6>GST turnover snapshot</h6>
+              <div class="vrow"><span class="k">FY 2025-26 declared</span><span class="v mono">₹38.4L</span></div>
+              <div class="vrow"><span class="k">Trailing 6-mo trend</span><span class="v" style="color:var(--ok)">Stable / rising</span></div>
+            </div>
+            <button class="btn">Continue to banking</button>
+          </div>
+        </div>
+        <div class="screen" id="b4">
+          <div class="statusbar"><span>10:27</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Banking analysis</h5><div class="sub">Step 3 of 4 · Mandatory for MSME</div></div><div class="right"><span class="tag navy">REQUIRED</span></div></div>
+          <div class="pbody">
+            <div class="aichip"><span class="spark">✦</span><span><b>Statement analysis</b> — TMB CA: monthly credits ₹3.2–3.8L, avg balance ₹46,200, GST-turnover match <b>91%</b>, 2 inward cheque returns in Dec (flagged), top counterparty 34% concentration.</span></div>
+            <div class="fcard"><h6>Conduct flags</h6>
+              <div class="vrow"><span class="k">Inward returns · Dec</span><span class="v"><span class="tag amber">2 — explain at offer</span></span></div>
+              <div class="vrow"><span class="k">Bounce charges</span><span class="v mono">₹590</span></div>
+              <div class="vrow"><span class="k">EMI obligations live</span><span class="v mono">₹11,400/mo</span></div>
+            </div>
+            <div class="fcard" style="background:var(--paper-dim);border-style:dashed"><h6 style="color:var(--ink-soft)">Household assessment — not applicable</h6>
+              <div class="small" style="margin-top:5px">MSME working capital is outside RBI Microfinance Directions. The platform switches regulatory machinery by product — the ₹3L/FOIR gate does not fire on this file.</div>
+            </div>
+            <button class="btn">Continue to review</button>
+          </div>
+        </div>
+        <div class="screen" id="b5">
+          <div class="statusbar"><span>10:34</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Review &amp; submit</h5><div class="sub">Step 4 of 4</div></div><div class="right"><span class="pillsync on">SYNCED</span></div></div>
+          <div class="pbody">
+            <div class="geo">📍 11.6643° N, 78.1460° E · Ammapet, Salem · 10:33:51</div>
+            <div class="fcard"><h6>Application summary</h6>
+              <div class="vrow"><span class="k">Applicant</span><span class="v">Murugan S · Murugan Garments</span></div>
+              <div class="vrow"><span class="k">Product</span><span class="v">MSME WC · ₹4,00,000 · 12 mo</span></div>
+              <div class="vrow"><span class="k">KYC + Udyam + GST</span><span class="v" style="color:var(--ok)">Complete</span></div>
+              <div class="vrow"><span class="k">Banking</span><span class="v">Parsed · 2 flags noted</span></div>
+              <div class="vrow"><span class="k">Consent</span><span class="v">Bureau + comms · OTP ✓</span></div>
+            </div>
+            <div class="bigok">
+              <div class="ring">✓</div>
+              <h4>Sent to Marketplace Engine</h4>
+              <p>Lender matching in progress.<br>Murugan will receive offers on WhatsApp.</p>
+              <div class="refid">ENQ-2026-061-00517</div>
+            </div>
+          </div>
+        </div>
+        <div class="screen" id="b6">
+          <div class="statusbar"><span>D+3</span><span>4G</span></div>
+          <div class="appbar"><div class="back">‹</div><div><h5>Application tracker</h5><div class="sub">ENQ-…00517 · DSA view</div></div><div class="right"><span class="tag amber">DSA</span></div></div>
+          <div class="pbody">
+            <div class="fcard"><h6>Status timeline</h6>
+              <div class="timeline" style="margin-top:8px">
+                <div class="tstep"><h6>Submitted to marketplace</h6><div class="small">Day 0 · 10:34</div></div>
+                <div class="tstep"><h6>3 offers received</h6><div class="small">Day 0 · 14:02 · customer notified</div></div>
+                <div class="tstep"><h6>Customer selected Cauvery Capital</h6><div class="small">Day 1 · 20.5% · ₹3.75L sanctioned ask</div></div>
+                <div class="tstep"><h6>Lender underwriting</h6><div class="small">Day 2 · query on Dec returns — answered</div></div>
+                <div class="tstep"><h6>Sanctioned ₹3,75,000 · eSign done</h6><div class="small">Day 3 · 11:20</div></div>
+                <div class="tstep pend"><h6>Disbursement</h6><div class="small">Expected today · UTR will post here</div></div>
+              </div>
+            </div>
+            <div class="fcard"><h6>Your commission <span class="tag green">Accrues on UTR</span></h6>
+              <div class="vrow"><span class="k">Grid</span><span class="v mono">1.5% of disbursal</span></div>
+              <div class="vrow"><span class="k">Expected</span><span class="v mono">₹5,625</span></div>
+              <div class="vrow"><span class="k">Servicing &amp; collections</span><span class="v">Lender-owned · no tasks for you</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="pnav">
+    <button id="prevBtn" onclick="step(-1)">‹ Previous</button>
+    <div class="dots" id="dots"></div>
+    <button id="nextBtn" onclick="step(1)">Next ›</button>
+  </div>
+  <div class="jlgline" id="jlgline">Group (JLG) lending is a secondary flow — <button onclick="jumpA(6)">view the group screen</button></div>
+</div>
+
+<aside class="annot" aria-live="polite">
+  <h3>Under the hood</h3>
+  <h2 id="a-title"></h2>
+  <p class="desc" id="a-desc"></p>
+  <div class="ablock"><h4>Rules &amp; logging</h4><div id="a-rules"></div></div>
+  <div id="a-reg"></div>
+</aside>
+</div>
+</section>
+<!-- ============ M2 MARKETPLACE ============ -->
+<section class="view" id="v-m2">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 02 · <b>Marketplace Engine</b> · desktop web</div>
+    <h2>Every file priced by every eligible lender — automatically.</h2>
+    <p>The engine takes the field submission, runs bureau and risk, tests it against each lender's live credit policy, and returns competing offers. The customer chooses; the network earns.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">02.1</span>Intake queue</h3><p>Everything the field sends lands here. Operations sees pipeline health at a glance — and nothing waits silently.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/marketplace/intake</span></div>
+    <div class="bbody">
+      <div class="kpirow">
+        <div class="kpi"><div class="kv">38</div><div class="kl">In pipeline</div></div>
+        <div class="kpi"><div class="kv g">14</div><div class="kl">Offers out</div></div>
+        <div class="kpi"><div class="kv a">3</div><div class="kl">Bureau retry</div></div>
+        <div class="kpi"><div class="kv">2h 10m</div><div class="kl">Median TAT to offer</div></div>
+      </div>
+      <table class="tbl">
+        <tr><th>Enquiry</th><th>Applicant</th><th>Product</th><th>Channel</th><th>Stage</th><th class="r">Ask</th></tr>
+        <tr><td class="mono">ENQ-…00482</td><td>Lakshmi Devi R</td><td>Dairy / Agri-Allied</td><td>BC · Sri Amman</td><td><span class="tag green">Risk scored</span></td><td class="mono r">₹60,000</td></tr>
+        <tr><td class="mono">ENQ-…00517</td><td>Murugan S</td><td>MSME WC</td><td>DSA · Senthamarai</td><td><span class="tag green">Offers out</span></td><td class="mono r">₹4,00,000</td></tr>
+        <tr><td class="mono">ENQ-…00509</td><td>Selvi K</td><td>Micro Business</td><td>BC · Kaveri Assoc.</td><td><span class="tag amber">Bureau pull</span></td><td class="mono r">₹45,000</td></tr>
+        <tr><td class="mono">ENQ-…00501</td><td>Anbu R</td><td>Farm Input</td><td>BC · Vel Murugan</td><td><span class="tag amber">Docs pending</span></td><td class="mono r">₹30,000</td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> SLA timer per stage; breach escalates to Sub BC admin</span><span><b>LOG</b> Stage transitions stamped with actor and time</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">02.2</span>Risk grade with reasons</h3><p>Not a black box. Every grade arrives with the evidence that produced it — the same reasons a credit officer would write, generated in seconds.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/marketplace/risk/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>Lakshmi Devi R · ENQ-…00482</h4><div class="sub">Dairy / Agri-Allied · ₹60,000 · 24 mo · Sithalapakkam</div></div><div class="actions"><span class="tag green">Grade B+ · PD 3.1%</span></div></div>
+      <div class="twocol">
+        <div class="panel"><h5>Bureau summary</h5>
+          <div class="vrow"><span class="k">Consumer score</span><span class="v mono">728</span></div>
+          <div class="vrow"><span class="k">MFI bureau</span><span class="v">1 live SHG loan · 0 DPD ever</span></div>
+          <div class="vrow"><span class="k">Enquiries · 6 mo</span><span class="v mono">1</span></div>
+          <div class="vrow"><span class="k">Total live obligation</span><span class="v mono">₹2,100/mo</span></div>
+        </div>
+        <div class="panel"><h5>Why this grade <span class="tag grey">Reason codes</span></h5>
+          <div class="rbar"><span class="rl">Income corroborated by BSA</span><div class="rtrack"><i style="width:88%;background:var(--ok)"></i></div><span class="rv" style="color:var(--ok)">+ high</span></div>
+          <div class="rbar"><span class="rl">0 bounces · 6 months</span><div class="rtrack"><i style="width:74%;background:var(--ok)"></i></div><span class="rv" style="color:var(--ok)">+ med</span></div>
+          <div class="rbar"><span class="rl">Clean MFI repayment history</span><div class="rtrack"><i style="width:66%;background:var(--ok)"></i></div><span class="rv" style="color:var(--ok)">+ med</span></div>
+          <div class="rbar"><span class="rl">FOIR headroom thin at 41%</span><div class="rtrack"><i style="width:46%;background:var(--warn)"></i></div><span class="rv" style="color:var(--warn)">− med</span></div>
+          <div class="rbar"><span class="rl">Single income asset (1 animal)</span><div class="rtrack"><i style="width:30%;background:var(--warn)"></i></div><span class="rv" style="color:var(--warn)">− low</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Grade thresholds versioned; model changes need credit-head approval</span><span><b>LOG</b> Score, model version and inputs stored on the file for audit</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">02.3</span>Lender eligibility matrix</h3><p>Each lender's credit policy is configuration, not email threads. The file is tested against every panel lender simultaneously.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/marketplace/match/ENQ-00482</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Lender policy check</th><th>Dhanam SFB</th><th>Cauvery Capital NBFC</th><th>Velli Finance</th><th>Bharath SFB</th></tr>
+        <tr><td>Ticket ₹60K in range</td><td><span class="tag green">Pass</span></td><td><span class="tag green">Pass</span></td><td><span class="tag green">Pass</span></td><td><span class="tag red">Min ₹1L</span></td></tr>
+        <tr><td>Geography — Kanchipuram</td><td><span class="tag green">Pass</span></td><td><span class="tag green">Pass</span></td><td><span class="tag green">Pass</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>Product — dairy / agri-allied</td><td><span class="tag green">Pass</span></td><td><span class="tag green">Pass</span></td><td><span class="tag amber">Cap hit Q2</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>Bureau cutoff ≥ 700 / NTC rules</td><td><span class="tag green">728</span></td><td><span class="tag green">728</span></td><td><span class="tag green">728</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>FOIR policy ≤ 45 / 50%</td><td><span class="tag green">41%</span></td><td><span class="tag green">41%</span></td><td><span class="tag amber">≤40% only</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td><b>Result</b></td><td><span class="tag green">Matched</span></td><td><span class="tag green">Matched</span></td><td><span class="tag red">Filtered</span></td><td><span class="tag red">Filtered</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Lender policies are versioned objects with effective dates</span><span><b>LOG</b> Match/filter outcome per lender stored — provable fairness in routing</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">02.4</span>Offer aggregation</h3><p>Competing offers in one view — pricing, fees, net disbursal and EMI — with total cost made honest. The customer compares; nobody is steered.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/marketplace/offers/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="offergrid">
+        <div class="offer rec"><span class="rectag">Lowest total cost</span><h5>Dhanam SFB</h5><div class="rate">21.5% <span style="font-size:11px;color:var(--ink-soft)">p.a. reducing</span></div>
+          <div class="vrow"><span class="k">EMI · 24 mo</span><span class="v mono">₹3,118</span></div>
+          <div class="vrow"><span class="k">Processing fee</span><span class="v mono">1.0% + GST</span></div>
+          <div class="vrow"><span class="k">Net disbursal</span><span class="v mono">₹59,292</span></div>
+          <div class="vrow"><span class="k">APR (KFS)</span><span class="v mono">23.4%</span></div>
+          <div class="vrow"><span class="k">TAT</span><span class="v">T+2</span></div>
+        </div>
+        <div class="offer"><h5>Cauvery Capital NBFC</h5><div class="rate">22.75% <span style="font-size:11px;color:var(--ink-soft)">p.a. reducing</span></div>
+          <div class="vrow"><span class="k">EMI · 24 mo</span><span class="v mono">₹3,154</span></div>
+          <div class="vrow"><span class="k">Processing fee</span><span class="v mono">1.5% + GST</span></div>
+          <div class="vrow"><span class="k">Net disbursal</span><span class="v mono">₹58,938</span></div>
+          <div class="vrow"><span class="k">APR (KFS)</span><span class="v mono">25.1%</span></div>
+          <div class="vrow"><span class="k">TAT</span><span class="v">T+1</span></div>
+        </div>
+        <div class="offer"><h5>Dhanam SFB · 18 mo</h5><div class="rate">21.5% <span style="font-size:11px;color:var(--ink-soft)">shorter tenor</span></div>
+          <div class="vrow"><span class="k">EMI · 18 mo</span><span class="v mono">₹3,962</span></div>
+          <div class="vrow"><span class="k">FOIR impact</span><span class="v" style="color:var(--bad)">48% — near cap</span></div>
+          <div class="vrow"><span class="k">Net disbursal</span><span class="v mono">₹59,292</span></div>
+          <div class="vrow"><span class="k">Interest saved</span><span class="v mono" style="color:var(--ok)">₹3,470</span></div>
+          <div class="vrow"><span class="k">TAT</span><span class="v">T+2</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Offers displayed with APR per KFS norms; ranking logic disclosed</span><span><b>LOG</b> All offers shown (not just selected) retained on file</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">02.5</span>Customer selection &amp; consent</h3><p>The offer goes to the customer in Tamil on WhatsApp. Her choice — confirmed by OTP — is the consent record, not a form signed in someone's office.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/marketplace/select/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="wa">
+          <div class="wh"><span>WhatsApp · Fynaptic ✓</span><span>14:21</span></div>
+          <div class="bubble">வணக்கம் லட்சுமி! உங்கள் ₹60,000 பசு கடனுக்கு <b>2 சலுகைகள்</b> வந்துள்ளன.<br><br>1️⃣ Dhanam SFB — மாதம் ₹3,118 (24 மாதம்)<br>2️⃣ Cauvery Capital — மாதம் ₹3,154 (24 மாதம்)<br><br>தேர்வு செய்ய எண்ணை அனுப்பவும். விவரம்: <u>KFS ஆவணம்</u></div>
+          <div class="bubble" style="margin-top:8px;background:#DCF3E3;text-align:right"><b>1</b></div>
+        </div>
+        <div class="panel"><h5>Selection record</h5>
+          <div class="vrow"><span class="k">Chosen</span><span class="v">Dhanam SFB · 21.5% · 24 mo</span></div>
+          <div class="vrow"><span class="k">Channel</span><span class="v">WhatsApp · Tamil</span></div>
+          <div class="vrow"><span class="k">Confirmation OTP</span><span class="v mono">Verified 14:26</span></div>
+          <div class="vrow"><span class="k">KFS delivered</span><span class="v">PDF · opened 14:23</span></div>
+          <div class="vrow"><span class="k">Next</span><span class="v">→ Module 03 · Underwriting</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Selection only valid with customer OTP; field officer cannot select on her behalf</span><span><b>LOG</b> KFS delivery + open receipts stored — digital lending guideline evidence</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ M3 UNDERWRITING ============ -->
+<section class="view" id="v-m3">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 03 · <b>Credit Underwriting</b> · desktop web</div>
+    <h2>Three tiers, four eyes, one audit trail.</h2>
+    <p>Sub BC recommends, Fynaptic decides with AI counsel, the bank confirms. No file moves without a named human owning each gate — and every action is written to an immutable log.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">03.1</span>Sub BC credit queue</h3><p>The Sub BC's credit officer sees only their own files, ordered by SLA. Workload and ageing visible to everyone above them.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">subbc.fynaptic.in/credit/queue</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>Sri Amman Agencies · Credit queue</h4><div class="sub">Officer: Vasanthi P · maker role</div></div><div class="actions"><span class="tag amber">SLA: 4h per file</span></div></div>
+      <table class="tbl">
+        <tr><th>File</th><th>Applicant</th><th>Grade</th><th>Offer</th><th>Ageing</th><th>Action</th></tr>
+        <tr><td class="mono">ENQ-…00482</td><td>Lakshmi Devi R</td><td><span class="tag green">B+</span></td><td>Dhanam SFB · 21.5%</td><td class="mono">0h 42m</td><td><span class="miniBtn pri" style="padding:5px 11px">Review</span></td></tr>
+        <tr><td class="mono">ENQ-…00468</td><td>Kavitha M</td><td><span class="tag green">A−</span></td><td>Dhanam SFB · 20.9%</td><td class="mono">2h 05m</td><td><span class="miniBtn" style="padding:5px 11px">Review</span></td></tr>
+        <tr><td class="mono">ENQ-…00455</td><td>Raja P</td><td><span class="tag amber">C+</span></td><td>Cauvery · 23.5%</td><td class="mono" style="color:var(--bad)">3h 38m</td><td><span class="miniBtn" style="padding:5px 11px">Review</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Sub BC sees own network only — hard data partition</span><span><b>LOG</b> Queue pick-up and decision times feed Sub BC scorecard</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">03.2</span>Sub BC review — maker</h3><p>Field evidence, banking, bureau and AI grade on one page. The officer recommends with a note — they cannot approve their own network's file alone.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">subbc.fynaptic.in/credit/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>Lakshmi Devi R · ₹60,000 dairy</h4><div class="sub">Field officer: Senthil Kumar · geo-verified visit 09:46</div></div>
+        <div class="actions"><button class="miniBtn pri">Recommend ✓</button><button class="miniBtn">Raise query</button><button class="miniBtn">Decline</button></div></div>
+      <div class="twocol">
+        <div class="panel"><h5>Field verification</h5>
+          <div class="check"><span class="dotok">✓</span> Residence photo matches Aadhaar address</div>
+          <div class="check"><span class="dotok">✓</span> Cattle shed photo · geo within 40m of residence</div>
+          <div class="check"><span class="dotok">✓</span> Dairy society membership confirmed</div>
+          <div class="check"><span class="dotok">✓</span> Neighbour reference — positive</div>
+        </div>
+        <div class="panel"><h5>Maker note (mandatory)</h5>
+          <div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--ink);background:#fff;line-height:1.6">Borrower 4 yrs in dairy, society payment regular per BSA. Second animal raises income resilience. Recommend with cattle insurance condition.</div>
+          <div class="small" style="margin-top:8px">Recommendation moves the file to Fynaptic credit — it cannot self-approve.</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Maker–checker enforced: recommend ≠ approve</span><span><b>LOG</b> Note, evidence views and decision stamped to file</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">03.3</span>Fynaptic credit — checker with AI counsel</h3><p>The Master BC officer sees the AI recommendation and its reasons, and stays fully in charge: agree, override with mandatory rationale, or send back. The machine advises; the human decides.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/credit/checker/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>Checker review · Lakshmi Devi R</h4><div class="sub">Officer: Bhavani S · Fynaptic credit · checker role</div></div><div class="actions"><span class="tag navy">Tier 2 of 3</span></div></div>
+      <div class="twocol">
+        <div class="panel" style="background:linear-gradient(135deg,#0E3B2E,#16553F);color:#EAF6EF;border:none"><h5 style="color:#EAF6EF">✦ AI recommendation <span class="tag" style="background:rgba(255,255,255,.15);color:#F4CD8B">Advisory</span></h5>
+          <div style="font-size:13px;line-height:1.7"><b style="color:var(--amber-soft)">APPROVE with condition</b> — cattle insurance assignment. Grade B+ (PD 3.1%) within product appetite; income corroborated; FOIR 41% acceptable at 24-mo tenor. Decline triggers: none. Watch item: single-asset income until second animal productive (~3 mo).</div>
+        </div>
+        <div class="panel"><h5>Checker decision</h5>
+          <div class="check"><span class="dotok">✓</span> Agree with AI — approve with condition</div>
+          <div class="vrow"><span class="k">Condition</span><span class="v">Cattle insurance assigned to lender</span></div>
+          <div class="vrow"><span class="k">Override used</span><span class="v">No</span></div>
+          <div class="small" style="margin-top:8px">If the officer overrides the AI in either direction, a reason code + free-text rationale is mandatory and the override rate appears on their scorecard.</div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px"><h5>Audit trail · this file</h5>
+        <table class="tbl" style="border:none">
+          <tr><td class="mono">09:47</td><td>Field submit</td><td>Senthil Kumar · FYN-TN-0231</td><td class="mono">geo 12.8342,79.7036</td></tr>
+          <tr><td class="mono">11:54</td><td>Risk grade B+ issued</td><td>model v3.2.1</td><td class="mono">inputs hash 9f3a…</td></tr>
+          <tr><td class="mono">14:26</td><td>Customer selected Dhanam SFB</td><td>OTP verified</td><td class="mono">KFS opened 14:23</td></tr>
+          <tr><td class="mono">15:40</td><td>Maker recommend</td><td>Vasanthi P · Sri Amman</td><td class="mono">note attached</td></tr>
+          <tr><td class="mono">16:12</td><td>Checker approve w/ condition</td><td>Bhavani S · Fynaptic</td><td class="mono">no override</td></tr>
+        </table>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> AI is advisory; human approval required on every file</span><span><b>RULE</b> Overrides need reason codes; tracked per officer</span><span><b>LOG</b> Immutable, hash-chained audit trail</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">03.4</span>Bank partner stage</h3><p>The lender's decision tracked in the same pane of glass — including their queries, answered from the file instead of email archaeology.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/credit/lender/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="panel"><h5>Dhanam SFB · decision flow</h5>
+          <div class="check"><span class="dotok">✓</span> File received via API · 16:15</div>
+          <div class="check"><span class="dotok">✓</span> Dedupe + policy re-check passed</div>
+          <div class="check"><span class="dotok">✓</span> Query: cattle insurance proof — answered from file</div>
+          <div class="check"><span class="dotok">✓</span> Sanctioned ₹60,000 · 21.5% · 24 mo</div>
+        </div>
+        <div class="panel"><h5>Sanction record</h5>
+          <div class="vrow"><span class="k">Sanction ref</span><span class="v mono">DSFB/MFI/26-27/08841</span></div>
+          <div class="vrow"><span class="k">Validity</span><span class="v">30 days</span></div>
+          <div class="vrow"><span class="k">Conditions</span><span class="v">Cattle insurance · eNACH active</span></div>
+          <div class="vrow"><span class="k">Next</span><span class="v">→ eSign &amp; disbursement</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Lender queries routed through platform — no side-channel email</span><span><b>LOG</b> Sanction letter stored against file with checksum</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">03.5</span>eSign, KFS &amp; disbursement</h3><p>Key Facts Statement first, agreement second, money third — in that order, by design. The customer signs on her own phone; the platform proves it.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/credit/closing/ENQ-00482</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="panel"><h5>Document execution</h5>
+          <div class="check"><span class="dotok">✓</span> KFS (Tamil) delivered &amp; acknowledged — APR 23.4%</div>
+          <div class="check"><span class="dotok">✓</span> Loan agreement · Aadhaar eSign 11:42</div>
+          <div class="check"><span class="dotok">✓</span> eNACH mandate registered · ₹3,118 monthly</div>
+          <div class="check"><span class="dotok">✓</span> Cattle insurance policy assigned</div>
+        </div>
+        <div class="panel"><h5>Disbursement</h5>
+          <div class="vrow"><span class="k">Penny-drop</span><span class="v">Canara ••6677 · name match ✓</span></div>
+          <div class="vrow"><span class="k">Net disbursal</span><span class="v mono">₹59,292</span></div>
+          <div class="vrow"><span class="k">UTR</span><span class="v mono">DSFB2606•••8174</span></div>
+          <div class="vrow"><span class="k">Loan a/c</span><span class="v mono">LN-2026-07-1142</span></div>
+          <div class="vrow"><span class="k">Hand-off</span><span class="v">→ Module 04 · LMS</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Disbursement blocked until KFS ack + eSign + mandate all green</span><span><b>LOG</b> UTR auto-reconciled; commission accrual event emitted</span></div>
+  </div>
+</div>
+</section>
+<!-- ============ M4 LMS & COLLECTIONS ============ -->
+<section class="view" id="v-m4">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 04 · <b>LMS &amp; Collections</b> · desktop + mobile web</div>
+    <h2>The loan after the loan — where BC economics are won or lost.</h2>
+    <p>Demand, collection, delinquency and recovery — with the platform spotting trouble before it becomes DPD, and telling each field officer exactly whom to visit first.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.1</span>Demand &amp; collection dashboard</h3><p>Today's demand against today's collections, live, network-wide. By 6 p.m. everyone knows exactly where the day stands.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/lms/today</span></div>
+    <div class="bbody">
+      <div class="kpirow">
+        <div class="kpi"><div class="kv">₹12.4L</div><div class="kl">Demand today</div></div>
+        <div class="kpi"><div class="kv g">92.1%</div><div class="kl">Collected by 6pm</div></div>
+        <div class="kpi"><div class="kv a">3.2%</div><div class="kl">eNACH bounce</div></div>
+        <div class="kpi"><div class="kv">412</div><div class="kl">EMIs due</div></div>
+        <div class="kpi"><div class="kv r">31</div><div class="kl">Unpaid → follow-up</div></div>
+      </div>
+      <table class="tbl">
+        <tr><th>Sub BC</th><th class="r">Demand</th><th class="r">Collected</th><th class="r">Efficiency</th><th>Mode split</th></tr>
+        <tr><td>Sri Amman Agencies · Villupuram</td><td class="mono r">₹4.6L</td><td class="mono r">₹4.4L</td><td class="mono r" style="color:var(--ok)">95.6%</td><td>eNACH 71% · UPI 18% · cash 11%</td></tr>
+        <tr><td>Kaveri Associates · Thanjavur</td><td class="mono r">₹3.9L</td><td class="mono r">₹3.5L</td><td class="mono r" style="color:var(--ok)">90.4%</td><td>eNACH 64% · UPI 22% · cash 14%</td></tr>
+        <tr><td>Vel Murugan Finserv · Madurai</td><td class="mono r">₹3.9L</td><td class="mono r">₹3.5L</td><td class="mono r" style="color:var(--warn)">88.9%</td><td>eNACH 58% · UPI 19% · cash 23%</td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Cash collections need digital receipt + same-day deposit confirmation</span><span><b>LOG</b> Every receipt geo-stamped against officer and account</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.2</span>Loan account view</h3><p>One account, whole truth: schedule, paid, outstanding, conduct. The screen a customer query gets answered from in ten seconds.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/lms/account/LN-2026-07-1142</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>LN-2026-07-1142 · Lakshmi Devi R</h4><div class="sub">Dairy / Agri-Allied · Dhanam SFB · Sri Amman Agencies · FO: Senthil Kumar</div></div><div class="actions"><span class="tag green">Standard · 0 DPD</span></div></div>
+      <div class="kpirow">
+        <div class="kpi"><div class="kv">₹60,000</div><div class="kl">Disbursed</div></div>
+        <div class="kpi"><div class="kv">₹55,4xx</div><div class="kl">Principal o/s</div></div>
+        <div class="kpi"><div class="kv">₹3,118</div><div class="kl">EMI</div></div>
+        <div class="kpi"><div class="kv">07 Jul</div><div class="kl">Next due</div></div>
+        <div class="kpi"><div class="kv g">2/2</div><div class="kl">EMIs on time</div></div>
+      </div>
+      <table class="tbl">
+        <tr><th>#</th><th>Due date</th><th class="r">EMI</th><th class="r">Principal</th><th class="r">Interest</th><th>Status</th></tr>
+        <tr><td class="mono">1</td><td class="mono">07 May 26</td><td class="mono r">₹3,118</td><td class="mono r">₹2,043</td><td class="mono r">₹1,075</td><td><span class="tag green">Paid · eNACH</span></td></tr>
+        <tr><td class="mono">2</td><td class="mono">07 Jun 26</td><td class="mono r">₹3,118</td><td class="mono r">₹2,080</td><td class="mono r">₹1,038</td><td><span class="tag green">Paid · eNACH</span></td></tr>
+        <tr><td class="mono">3</td><td class="mono">07 Jul 26</td><td class="mono r">₹3,118</td><td class="mono r">₹2,117</td><td class="mono r">₹1,001</td><td><span class="tag grey">Scheduled</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Schedule regeneration (part-pay/foreclose) versioned, old schedule retained</span><span><b>LOG</b> Statement generation events recorded for grievance defence</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.3</span>DPD buckets &amp; roll rates</h3><p>Where the book sits, and which way it's rolling. The roll-rate panel is the early truth-teller every portfolio head reads first.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/lms/dpd</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="svgbox"><h5>Portfolio by DPD bucket · ₹18.6 Cr AUM</h5>
+          <svg viewBox="0 0 420 170" width="100%" role="img" aria-label="DPD bucket bar chart">
+            <line x1="36" y1="140" x2="410" y2="140" stroke="#E2E1D8"/>
+            <rect x="50" y="28" width="52" height="112" rx="5" fill="#1E8E5A"/>
+            <rect x="124" y="106" width="52" height="34" rx="5" fill="#6BBF8E"/>
+            <rect x="198" y="121" width="52" height="19" rx="5" fill="#E8A33D"/>
+            <rect x="272" y="129" width="52" height="11" rx="5" fill="#D87A3A"/>
+            <rect x="346" y="133" width="52" height="7" rx="5" fill="#C24A3A"/>
+            <text x="76" y="156" font-size="9.5" text-anchor="middle" fill="#5A6B62">Current</text>
+            <text x="150" y="156" font-size="9.5" text-anchor="middle" fill="#5A6B62">1–30</text>
+            <text x="224" y="156" font-size="9.5" text-anchor="middle" fill="#5A6B62">31–60</text>
+            <text x="298" y="156" font-size="9.5" text-anchor="middle" fill="#5A6B62">61–90</text>
+            <text x="372" y="156" font-size="9.5" text-anchor="middle" fill="#5A6B62">90+</text>
+            <text x="76" y="22" font-size="10" text-anchor="middle" fill="#15261F" font-weight="600">91.4%</text>
+            <text x="150" y="100" font-size="10" text-anchor="middle" fill="#15261F" font-weight="600">4.6%</text>
+            <text x="224" y="115" font-size="10" text-anchor="middle" fill="#15261F" font-weight="600">1.9%</text>
+            <text x="298" y="123" font-size="10" text-anchor="middle" fill="#15261F" font-weight="600">1.2%</text>
+            <text x="372" y="127" font-size="10" text-anchor="middle" fill="#15261F" font-weight="600">0.9%</text>
+          </svg>
+        </div>
+        <div class="panel"><h5>Roll rates · May → Jun</h5>
+          <div class="vrow"><span class="k">Current → 1–30</span><span class="v mono">2.8% <span style="color:var(--ok)">▼0.3</span></span></div>
+          <div class="vrow"><span class="k">1–30 → 31–60</span><span class="v mono">22.4% <span style="color:var(--bad)">▲1.9</span></span></div>
+          <div class="vrow"><span class="k">31–60 → 61–90</span><span class="v mono">34.0% <span style="color:var(--warn)">▲0.4</span></span></div>
+          <div class="vrow"><span class="k">Cure rate (1–30 → Current)</span><span class="v mono">61.2%</span></div>
+          <div class="vrow"><span class="k">PAR&gt;30</span><span class="v mono">4.0% · ₹74.4L</span></div>
+          <div class="small" style="margin-top:8px">1–30 forward roll worsening at Vel Murugan Finserv — flagged to cockpit and EWS.</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Bucket classification job runs daily post-cutoff; immutable EOD snapshot</span><span><b>LOG</b> Roll-rate deterioration auto-raises a cockpit alert</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.4</span>Early warning — act before DPD</h3><p>The platform reads the same signals a great field officer would — income credits, attendance, partial payments — and raises its hand while the account is still current.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/lms/ews</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Account</th><th>Borrower</th><th>DPD</th><th>Signals detected</th><th>Heat</th><th>Recommended action</th></tr>
+        <tr><td class="mono">LN-…0917</td><td>Saroja V · Thanjavur</td><td class="mono">0</td><td>Dairy society credit missed this month · partial EMI attempt</td><td><span class="tag red">High</span></td><td>FO visit within 48h · restructure check</td></tr>
+        <tr><td class="mono">LN-…0764</td><td>Magizham JLG · member 3</td><td class="mono">0</td><td>Centre attendance 5→3 over 3 weeks</td><td><span class="tag amber">Medium</span></td><td>Raise at next centre meeting</td></tr>
+        <tr><td class="mono">LN-…0688</td><td>Anbu R · Villupuram</td><td class="mono">4</td><td>First-ever bounce + new bureau enquiry (2 lenders)</td><td><span class="tag red">High</span></td><td>Call today · indebtedness re-check</td></tr>
+        <tr><td class="mono">LN-…0541</td><td>Devi K · Madurai</td><td class="mono">0</td><td>UPI AutoPay revoked by customer</td><td><span class="tag amber">Medium</span></td><td>Re-mandate before 7th</td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> EWS never auto-acts on the customer — it routes a task to a human</span><span><b>LOG</b> Signal→action→outcome stored; model precision reviewed monthly</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.5</span>Field collection worklist — mobile web</h3><p>The officer's morning, ordered by the platform: route-clustered, priority-scored, with PTP capture on the spot. Same PWA, collections hat on.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">field.fynaptic.in/collections</span></div>
+    <div class="bbody" style="display:flex;justify-content:center;background:#EAEAE2">
+      <div style="width:330px;background:var(--paper);border-radius:18px;border:1px solid var(--line);overflow:hidden">
+        <div class="appbar"><div><h5>Today's collections</h5><div class="sub">Kanchipuram route · 6 stops · ₹14,360</div></div><div class="right"><span class="tag amber">Priority order</span></div></div>
+        <div class="pbody">
+          <div class="fcard" style="border-left:4px solid var(--bad)"><h6>1 · Saroja V <span class="tag red">EWS High</span></h6>
+            <div class="vrow"><span class="k">Due</span><span class="v mono">₹3,240 · DPD 0</span></div>
+            <div class="vrow"><span class="k">Why first</span><span class="v">Income signal missed</span></div>
+            <div class="tagrow" style="margin-top:8px"><span class="tag green">Collect ₹</span><span class="tag amber">PTP date</span><span class="tag grey">Not met</span></div>
+          </div>
+          <div class="fcard" style="border-left:4px solid var(--warn)"><h6>2 · Anbu R <span class="tag amber">DPD 4</span></h6>
+            <div class="vrow"><span class="k">Due</span><span class="v mono">₹2,710 + ₹85 charge</span></div>
+            <div class="vrow"><span class="k">PTP</span><span class="v">Promised today · 2nd PTP</span></div>
+            <div class="tagrow" style="margin-top:8px"><span class="tag green">Collect ₹</span><span class="tag red">PTP broken</span></div>
+          </div>
+          <div class="fcard"><h6>3 · Magizham JLG centre <span class="tag grey">11:00</span></h6>
+            <div class="vrow"><span class="k">Group due</span><span class="v mono">₹6,150 · 5 members</span></div>
+            <div class="vrow"><span class="k">Mode</span><span class="v">UPI QR at meeting</span></div>
+          </div>
+          <div class="geo">📍 Route optimised · 14.2 km · cash-in-hand limit ₹25,000</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Cash-in-hand cap per officer; receipt mandatory before next stop</span><span><b>LOG</b> PTP given/kept/broken history drives next priority score</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">04.6</span>PTP discipline &amp; recovery</h3><p>Promises are data. Kept-rate by officer and Sub BC, broken-PTP escalation, and a clean settlement workflow when an account truly cannot pay.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/lms/recovery</span></div>
+    <div class="bbody">
+      <div class="kpirow">
+        <div class="kpi"><div class="kv g">78%</div><div class="kl">PTP kept · network</div></div>
+        <div class="kpi"><div class="kv a">64</div><div class="kl">Open PTPs</div></div>
+        <div class="kpi"><div class="kv r">11</div><div class="kl">2× broken → escalated</div></div>
+        <div class="kpi"><div class="kv">5</div><div class="kl">Settlement requests</div></div>
+      </div>
+      <div class="twocol">
+        <div class="panel"><h5>Escalation ladder</h5>
+          <div class="check"><span class="dotok">✓</span> D+1 — Tamil voice reminder (auto)</div>
+          <div class="check"><span class="dotok">✓</span> D+3 — FO visit + PTP capture</div>
+          <div class="check"><span class="dotok">✓</span> PTP broken ×2 — Sub BC admin call</div>
+          <div class="check"><span class="dotwait"></span> DPD 30 — Fynaptic recovery cell + hardship review</div>
+        </div>
+        <div class="panel"><h5>Settlement workflow</h5>
+          <div class="vrow"><span class="k">Request · LN-…0202</span><span class="v">Medical hardship · docs ✓</span></div>
+          <div class="vrow"><span class="k">Proposal</span><span class="v mono">₹18,000 vs ₹23,400 o/s</span></div>
+          <div class="vrow"><span class="k">Approvals</span><span class="v">Sub BC ✓ · Fynaptic ✓ · Lender pending</span></div>
+          <div class="vrow"><span class="k">Bureau impact</span><span class="v">Disclosed to customer in Tamil</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Fair-practice script enforced; call windows 9am–6pm; no harassment patterns</span><span><b>LOG</b> Every contact attempt logged — conduct defensible to RBI ombudsman</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ M5 COMMISSIONS ============ -->
+<section class="view" id="v-m5">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 05 · <b>Commission Engine</b> · desktop web</div>
+    <h2>Everyone sees their money. Nobody prepares MIS.</h2>
+    <p>Grids are versioned configuration. Accruals fire on UTR. Settlement reconciles lender invoices to the paisa — and clawbacks happen by rule, not by argument.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">05.1</span>Waterfall configuration</h3><p>Product × model × partner grids with effective dates. Change a rate for next month without touching this month's accruals.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/commissions/grids</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Product · model</th><th class="r">Lender payout</th><th class="r">Master BC</th><th class="r">Sub BC</th><th class="r">Field Officer</th><th>Version</th></tr>
+        <tr><td>Dairy / Agri-Allied · BC</td><td class="mono r">2.50%</td><td class="mono r">0.75%</td><td class="mono r">1.25%</td><td class="mono r">0.50%</td><td class="mono">v4 · 01 Apr 26</td></tr>
+        <tr><td>Micro Business · BC</td><td class="mono r">2.25%</td><td class="mono r">0.70%</td><td class="mono r">1.10%</td><td class="mono r">0.45%</td><td class="mono">v4 · 01 Apr 26</td></tr>
+        <tr><td>MSME WC · DSA</td><td class="mono r">1.50%</td><td class="mono r">0.40%</td><td class="mono r">— </td><td class="mono r">1.10% (DSA)</td><td class="mono">v2 · 01 Jan 26</td></tr>
+        <tr><td>Group JLG · BC</td><td class="mono r">2.75%</td><td class="mono r">0.80%</td><td class="mono r">1.40%</td><td class="mono r">0.55%</td><td class="mono">v4 · 01 Apr 26</td></tr>
+      </table>
+      <div class="small" style="margin-top:9px;color:var(--ink-soft)">Trail income on collections (BC model): 0.35% of collected value, split 60/40 Sub BC : FO — configured per lender agreement.</div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Grid changes are maker–checker with effective dating; never retroactive</span><span><b>LOG</b> Every accrual references the grid version that priced it</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">05.2</span>Earnings — every persona, real time</h3><p>The field officer checks his phone, the Sub BC checks her dashboard, and both see the same number the finance team will pay. Dispute volume falls to near zero.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/commissions/earnings</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="panel"><h5>Senthil Kumar · FO · June MTD</h5>
+          <div class="kpirow" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="kpi"><div class="kv g">₹18,640</div><div class="kl">Accrued</div></div>
+            <div class="kpi"><div class="kv">₹12,210</div><div class="kl">Approved</div></div>
+            <div class="kpi"><div class="kv">₹9,480</div><div class="kl">Paid</div></div>
+          </div>
+          <div class="vrow"><span class="k">Lakshmi Devi · disbursal 0.50%</span><span class="v mono">₹300 · accrued</span></div>
+          <div class="vrow"><span class="k">Collections trail · MTD</span><span class="v mono">₹1,840</span></div>
+          <div class="vrow"><span class="k">Quality bonus (PAR&lt;2% book)</span><span class="v mono">₹1,500 · provisional</span></div>
+        </div>
+        <div class="panel"><h5>Sri Amman Agencies · Sub BC · June MTD</h5>
+          <div class="kpirow" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="kpi"><div class="kv g">₹2.84L</div><div class="kl">Accrued</div></div>
+            <div class="kpi"><div class="kv">₹2.31L</div><div class="kl">Approved</div></div>
+            <div class="kpi"><div class="kv">₹1.92L</div><div class="kl">Paid</div></div>
+          </div>
+          <div class="vrow"><span class="k">Disbursal commissions · 41 loans</span><span class="v mono">₹2.12L</span></div>
+          <div class="vrow"><span class="k">Collections trail</span><span class="v mono">₹0.58L</span></div>
+          <div class="vrow"><span class="k">Holdback (PAR covenant)</span><span class="v mono" style="color:var(--warn)">₹0.14L</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Accrual on UTR confirmation, approval on lender invoice match, payout on settlement</span><span><b>LOG</b> Earnings statement downloadable per persona, per period</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">05.3</span>Settlement, reconciliation &amp; clawback</h3><p>Lender invoice vs platform accrual vs bank credit — three-way matched, line by line. Foreclosure inside six months? The clawback posts itself, with the rule cited.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/commissions/settlement</span></div>
+    <div class="bbody">
+      <div class="kpirow">
+        <div class="kpi"><div class="kv">₹9.12L</div><div class="kl">Invoiced · May</div></div>
+        <div class="kpi"><div class="kv g">₹9.04L</div><div class="kl">Received</div></div>
+        <div class="kpi"><div class="kv a">₹0.08L</div><div class="kl">Variance · 3 lines</div></div>
+        <div class="kpi"><div class="kv r">₹0.06L</div><div class="kl">Clawbacks posted</div></div>
+      </div>
+      <table class="tbl">
+        <tr><th>Line</th><th>Lender</th><th>Reason</th><th class="r">Amount</th><th>Status</th></tr>
+        <tr><td class="mono">REC-0412</td><td>Dhanam SFB</td><td>UTR missing in lender file</td><td class="mono r">₹4,250</td><td><span class="tag amber">Disputed · raised</span></td></tr>
+        <tr><td class="mono">REC-0415</td><td>Cauvery Capital</td><td>Rate applied v1 grid instead of v2</td><td class="mono r">₹2,310</td><td><span class="tag amber">Lender correcting</span></td></tr>
+        <tr><td class="mono">CLW-0118</td><td>Dhanam SFB</td><td>Foreclosure at month 4 · rule 6-mo</td><td class="mono r">−₹1,125</td><td><span class="tag grey">Auto-recovered from Sub BC + FO splits</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Clawback cascades proportionally down the same waterfall it paid up</span><span><b>LOG</b> Reconciliation pack archived monthly; auditor self-serve</span></div>
+  </div>
+</div>
+</section>
+<!-- ============ M6 COCKPIT ============ -->
+<section class="view" id="v-m6">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 06 · <b>Master BC Cockpit</b> · desktop web</div>
+    <h2>The whole network on one screen — sourcing quality, portfolio quality, and where the next problem is forming.</h2>
+    <p>This is the Master BC's seat: scorecard every Sub BC, read the vintages, watch FLDG headroom, and walk into any lender review with the pack already built.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">06.1</span>Network overview &amp; Sub BC scorecards</h3><p>Volume is easy to see; quality is what the scorecard forces into the open. Renewal conversations start from this table, not from anecdotes.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/cockpit/network</span></div>
+    <div class="bbody">
+      <div class="kpirow">
+        <div class="kpi"><div class="kv">₹18.6 Cr</div><div class="kl">AUM</div></div>
+        <div class="kpi"><div class="kv">3,412</div><div class="kl">Live loans</div></div>
+        <div class="kpi"><div class="kv">3</div><div class="kl">Sub BCs · 1 onboarding</div></div>
+        <div class="kpi"><div class="kv">28</div><div class="kl">Field officers</div></div>
+        <div class="kpi"><div class="kv g">96.4%</div><div class="kl">Collection eff. · MTD</div></div>
+        <div class="kpi"><div class="kv a">4.0%</div><div class="kl">PAR&gt;30</div></div>
+      </div>
+      <table class="tbl">
+        <tr><th>Sub BC</th><th class="r">AUM</th><th class="r">Approval rate</th><th class="r">PAR&gt;30</th><th class="r">Coll. eff.</th><th class="r">FO attrition</th><th>Score</th></tr>
+        <tr><td>Sri Amman Agencies · Villupuram</td><td class="mono r">₹7.1 Cr</td><td class="mono r">68%</td><td class="mono r" style="color:var(--ok)">2.8%</td><td class="mono r">97.8%</td><td class="mono r">0/9</td><td><span class="tag green">A</span></td></tr>
+        <tr><td>Kaveri Associates · Thanjavur</td><td class="mono r">₹6.2 Cr</td><td class="mono r">61%</td><td class="mono r">3.9%</td><td class="mono r">96.1%</td><td class="mono r">1/10</td><td><span class="tag green">B+</span></td></tr>
+        <tr><td>Vel Murugan Finserv · Madurai</td><td class="mono r">₹5.3 Cr</td><td class="mono r">54%</td><td class="mono r" style="color:var(--bad)">5.7%</td><td class="mono r">93.9%</td><td class="mono r">2/9</td><td><span class="tag amber">B−</span></td></tr>
+        <tr><td style="color:var(--ink-soft)">Annai Enterprises · Salem</td><td class="mono r" style="color:var(--ink-soft)">—</td><td colspan="4" style="color:var(--ink-soft)">Onboarding · Module 08</td><td><span class="tag grey">New</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Scorecard formula published to Sub BCs — same math for everyone</span><span><b>LOG</b> Monthly snapshots retained; trend visible at renewal</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">06.2</span>Vintage curves &amp; risk-adjusted view</h3><p>Each quarter's cohort tracked by months-on-book. If sourcing quality slips, this chart says so months before the P&amp;L does.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/cockpit/vintages</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="svgbox"><h5>PAR&gt;30 by months on book · disbursal cohorts</h5>
+          <svg viewBox="0 0 430 190" width="100%" role="img" aria-label="Vintage curves">
+            <line x1="40" y1="160" x2="415" y2="160" stroke="#E2E1D8"/>
+            <line x1="40" y1="160" x2="40" y2="16" stroke="#E2E1D8"/>
+            <text x="14" y="40" font-size="9" fill="#5A6B62">6%</text>
+            <text x="14" y="100" font-size="9" fill="#5A6B62">3%</text>
+            <text x="14" y="160" font-size="9" fill="#5A6B62">0%</text>
+            <polyline points="40,160 100,142 160,128 220,118 280,112 340,108 400,106" fill="none" stroke="#1E8E5A" stroke-width="2.4"/>
+            <polyline points="40,160 100,146 160,133 220,124 280,118 340,114" fill="none" stroke="#2BA37E" stroke-width="2.4" stroke-dasharray="1 0"/>
+            <polyline points="40,160 100,140 160,124 220,112 280,104" fill="none" stroke="#E8A33D" stroke-width="2.4"/>
+            <polyline points="40,160 100,136 160,114 220,96" fill="none" stroke="#C24A3A" stroke-width="2.6"/>
+            <text x="60" y="178" font-size="9" fill="#5A6B62">MOB 0</text>
+            <text x="210" y="178" font-size="9" fill="#5A6B62">MOB 6</text>
+            <text x="385" y="178" font-size="9" fill="#5A6B62">MOB 12</text>
+          </svg>
+          <div class="legend">
+            <span><i style="background:#1E8E5A"></i>Q2-25 cohort</span>
+            <span><i style="background:#2BA37E"></i>Q3-25</span>
+            <span><i style="background:#E8A33D"></i>Q4-25</span>
+            <span><i style="background:#C24A3A"></i>Q1-26 — deteriorating</span>
+          </div>
+        </div>
+        <div class="panel"><h5>Read-out &amp; risk-adjusted view</h5>
+          <div class="vrow"><span class="k">Q1-26 cohort PAR&gt;30 @ MOB 3</span><span class="v mono" style="color:var(--bad)">3.4% vs 1.9% norm</span></div>
+          <div class="vrow"><span class="k">Concentration</span><span class="v">71% of excess from Madurai · 2 FOs</span></div>
+          <div class="vrow"><span class="k">Action raised</span><span class="v">Sourcing audit · FO retraining</span></div>
+          <div class="vrow"><span class="k">Network yield</span><span class="v mono">2.41% of throughput</span></div>
+          <div class="vrow"><span class="k">Credit cost (FLDG hits)</span><span class="v mono">−0.38%</span></div>
+          <div class="vrow"><span class="k">Risk-adjusted margin</span><span class="v mono" style="color:var(--ok)">2.03%</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Cohort definitions locked; restatement requires credit-committee note</span><span><b>LOG</b> Vintage deterioration alert auto-feeds EWS weighting for that geography</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">06.3</span>NPA &amp; FLDG exposure</h3><p>The number that keeps a Master BC up at night, watched continuously: deposit utilisation per lender, distance to trigger, and the accounts driving it.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/cockpit/fldg</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="panel"><h5>NPA ladder</h5>
+          <div class="vrow"><span class="k">SMA-0 (1–30)</span><span class="v mono">₹85.6L · 286 a/c</span></div>
+          <div class="vrow"><span class="k">SMA-1 (31–60)</span><span class="v mono">₹35.3L · 121 a/c</span></div>
+          <div class="vrow"><span class="k">SMA-2 (61–90)</span><span class="v mono">₹22.3L · 78 a/c</span></div>
+          <div class="vrow"><span class="k">NPA (90+)</span><span class="v mono" style="color:var(--bad)">₹16.7L · 59 a/c</span></div>
+          <div class="vrow"><span class="k">Write-off proposals</span><span class="v">3 files · committee 20 Jun</span></div>
+        </div>
+        <div class="panel"><h5>FLDG by lender</h5>
+          <div class="rbar"><span class="rl">Dhanam SFB · 5% deposit</span><div class="rtrack"><i style="width:22%;background:var(--ok)"></i></div><span class="rv">22%</span></div>
+          <div class="rbar"><span class="rl">Cauvery Capital · 5%</span><div class="rtrack"><i style="width:31%;background:var(--ok)"></i></div><span class="rv">31%</span></div>
+          <div class="rbar"><span class="rl">Velli Finance · 7.5%</span><div class="rtrack"><i style="width:58%;background:var(--warn)"></i></div><span class="rv">58%</span></div>
+          <div class="small" style="margin-top:8px">Velli utilisation past 50% review trigger — recovery push on 14 driver accounts; replenishment plan drafted. Alert raised D-21 before invocation risk.</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Utilisation thresholds (50/75/90%) trigger graded escalation to MD</span><span><b>LOG</b> Lender-wise FLDG ledger reconciled monthly, statement archived</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">06.4</span>Regulatory &amp; reporting pack</h3><p>The audit doesn't start when the auditor arrives — it's been running since day one. Every register the regulator or lender can ask for, generated from the same data everything else runs on.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/cockpit/regulatory</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Register / return</th><th>Period</th><th>Status</th><th>Consumer</th></tr>
+        <tr><td>Household assessment register (per MFI Directions)</td><td class="mono">Jun 26</td><td><span class="tag green">Live · 100% coverage</span></td><td>RBI inspection · lender audit</td></tr>
+        <tr><td>KFS issuance &amp; acknowledgement register</td><td class="mono">Jun 26</td><td><span class="tag green">Live</span></td><td>Digital lending guidelines</td></tr>
+        <tr><td>Bureau submission file (consumer + MFI)</td><td class="mono">May 26</td><td><span class="tag green">Submitted · accepted</span></td><td>CICs</td></tr>
+        <tr><td>Grievance register · TAT report</td><td class="mono">Jun 26</td><td><span class="tag amber">2 open · within TAT</span></td><td>Ombudsman readiness</td></tr>
+        <tr><td>BC activity return — per partner bank format</td><td class="mono">Q1 FY27</td><td><span class="tag grey">Due 10 Jul</span></td><td>Partner banks</td></tr>
+        <tr><td>Audit log export (hash-chained)</td><td class="mono">On demand</td><td><span class="tag green">Self-serve</span></td><td>Statutory / internal audit</td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Reports generated from production data — no parallel spreadsheets to drift</span><span><b>LOG</b> Every export watermarked with generator, time and filter set</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ M7 COMMUNICATIONS ============ -->
+<section class="view" id="v-m7">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 07 · <b>Communications</b> · desktop web</div>
+    <h2>Tamil first. Consent always. Every message on the record.</h2>
+    <p>The borrower hears from the platform in her language at the moments that matter — and every template, consent and opt-out is registered and provable.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">07.1</span>Lifecycle journey designer</h3><p>Stages, channels and templates wired visually. The EMI reminder at T-3 in Tamil isn't an idea — it's configuration that fires for every account, every month.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/comms/journeys</span></div>
+    <div class="bbody">
+      <div class="twocol">
+        <div class="panel"><h5>Active journey · loan lifecycle</h5>
+          <div class="check"><span class="dotok">✓</span> Application received — WhatsApp (TA/EN)</div>
+          <div class="check"><span class="dotok">✓</span> Offers ready — WhatsApp interactive list</div>
+          <div class="check"><span class="dotok">✓</span> Sanction + KFS — WhatsApp doc + SMS fallback</div>
+          <div class="check"><span class="dotok">✓</span> Disbursal confirmation — WhatsApp + SMS</div>
+          <div class="check"><span class="dotok">✓</span> EMI reminder T-3 — WhatsApp; T-1 — Tamil voice call</div>
+          <div class="check"><span class="dotok">✓</span> Bounce D+1 — voice; D+3 — FO visit task</div>
+          <div class="check"><span class="dotwait"></span> Pre-closure offer — month 18+ · A-grade conduct (draft)</div>
+        </div>
+        <div class="wa">
+          <div class="wh"><span>WhatsApp · Fynaptic ✓</span><span>T-3 · 10:00</span></div>
+          <div class="bubble">வணக்கம் லட்சுமி! உங்கள் தவணை <b>₹3,118</b> · <b>ஜூலை 7</b> அன்று வங்கியில் இருந்து எடுக்கப்படும்.<br><br>கணக்கில் போதிய இருப்பு வைத்திருங்கள் 🙏<br><br>சந்தேகம்? <u>இங்கே அழுத்தவும்</u> அல்லது செந்தில் (உங்கள் அலுவலர்): 98•••• 2210</div>
+          <div class="small" style="margin-top:7px;color:var(--ink-soft)">Template TPL-EMI-T3-TA · DLT registered · delivery + read receipts stored</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Collections contact windows enforced (9am–6pm); tone-approved templates only</span><span><b>LOG</b> Delivery, read and response events per message on the account record</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">07.2</span>Consent &amp; DLT register</h3><p>Who consented to what, when, on which channel — and who said stop. The unsubscribe is honoured everywhere at once, automatically.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/comms/consent</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Customer</th><th>Bureau pull</th><th>WhatsApp</th><th>Voice</th><th>Marketing</th><th>Last change</th></tr>
+        <tr><td>Lakshmi Devi R</td><td><span class="tag green">OTP · 09:46</span></td><td><span class="tag green">Opt-in</span></td><td><span class="tag green">Opt-in</span></td><td><span class="tag green">Opt-in</span></td><td class="mono">11 Jun 26</td></tr>
+        <tr><td>Murugan S</td><td><span class="tag green">OTP · 10:33</span></td><td><span class="tag green">Opt-in</span></td><td><span class="tag green">Opt-in</span></td><td><span class="tag red">Opt-out</span></td><td class="mono">12 Jun 26</td></tr>
+        <tr><td>Saroja V</td><td><span class="tag green">OTP</span></td><td><span class="tag green">Opt-in</span></td><td><span class="tag amber">Quiet hours set</span></td><td><span class="tag red">Opt-out</span></td><td class="mono">02 Jun 26</td></tr>
+      </table>
+      <div class="small" style="margin-top:9px;color:var(--ink-soft)">All SMS templates DLT-registered · WhatsApp templates approved by BSP · voice scripts versioned. Servicing messages continue after marketing opt-out — the platform knows the difference.</div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Marketing and servicing consents separated; opt-out propagates in &lt; 1 min</span><span><b>LOG</b> Consent ledger append-only — admissible evidence</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ M8 TENANT ADMIN ============ -->
+<section class="view" id="v-m8">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 08 · <b>Tenant Administration</b> · desktop web</div>
+    <h2>A new Sub BC, live in a morning — not a quarter.</h2>
+    <p>Entity checks, agreement, products, commission grid, branding, users: a wizard, not a project. This is how the network grows without head office becoming the bottleneck.</p>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">08.1</span>Sub BC onboarding wizard</h3><p>Annai Enterprises, Salem — mid-onboarding. Each step gated, each approval recorded; the moment step six completes, their officers can log in and source.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/admin/onboard/annai-enterprises</span></div>
+    <div class="bbody">
+      <div class="bhead"><div><h4>Annai Enterprises · Salem</h4><div class="sub">Partner type: Sub BC · sponsor: BD team · started 09 Jun</div></div><div class="actions"><span class="tag amber">Step 4 of 6</span></div></div>
+      <div class="check"><span class="dotok">✓</span> 1 · Entity KYB — PAN, GST, bank account penny-drop, promoter KYC</div>
+      <div class="check"><span class="dotok">✓</span> 2 · Agreement — Sub BC agreement eSigned · security deposit ₹2.0L received</div>
+      <div class="check"><span class="dotok">✓</span> 3 · Products enabled — Dairy, Micro Business, Farm Input (JLG from month 4)</div>
+      <div class="check"><span class="dotwait"></span> 4 · Commission grid — v4 standard proposed · awaiting checker approval</div>
+      <div class="check"><span class="dotwait"></span> 5 · Branding — co-branded field app header · subdomain annai.fynaptic.in</div>
+      <div class="check"><span class="dotwait"></span> 6 · Users — 1 admin, 1 credit officer, 6 field officers · territory: Salem dist.</div>
+      <div class="small" style="margin-top:10px;color:var(--ink-soft)">Same wizard, larger scope: the platform can onboard an entire Master BC tenant — products, lender panel, grids and branding partitioned from day one.</div>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> No sourcing rights until all six gates pass; deposit reconciled to ledger</span><span><b>LOG</b> Onboarding file retained — partner due-diligence evidence</span></div>
+  </div>
+
+  <div class="dscreen">
+    <div class="dhead"><h3><span class="snum">08.2</span>Roles, permissions &amp; data partitions</h3><p>Who sees what, who approves what — declared once, enforced everywhere. The auditor's favourite screen, and the reason data never leaks across Sub BCs.</p></div>
+    <div class="browser"><div class="bbar"><div class="bdots"><i></i><i></i><i></i></div><span class="burl">app.fynaptic.in/admin/roles</span></div>
+    <div class="bbody">
+      <table class="tbl">
+        <tr><th>Capability</th><th>Field Officer</th><th>Sub BC Credit</th><th>Sub BC Admin</th><th>Fynaptic Credit</th><th>Finance</th><th>Auditor</th></tr>
+        <tr><td>Create enquiry</td><td><span class="tag green">✓</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>Recommend (maker)</td><td><span class="tag grey">—</span></td><td><span class="tag green">✓ own network</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>Approve (checker)</td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag green">✓</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>Edit commission grids</td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag green">✓ maker–checker</span></td><td><span class="tag grey">—</span></td></tr>
+        <tr><td>View cross-network data</td><td><span class="tag red">✗</span></td><td><span class="tag red">✗</span></td><td><span class="tag red">✗ own only</span></td><td><span class="tag green">✓</span></td><td><span class="tag green">✓</span></td><td><span class="tag green">✓ read-only</span></td></tr>
+        <tr><td>Export audit log</td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag grey">—</span></td><td><span class="tag green">✓</span></td></tr>
+      </table>
+    </div></div>
+    <div class="govstrip"><span><b>RULE</b> Role changes are maker–checker; dormant users auto-disabled at 30 days</span><span><b>LOG</b> Permission history per user retained — answers "who could do what, when"</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section class="view" id="v-rm">
+<div class="dwrap">
+  <div class="dintro">
+    <div class="crumbs">Module 09 · <b>Delivery Roadmap</b> · indicative</div>
+    <h2>Web-first now. Native field shell next. One codebase throughout.</h2>
+    <p>Phase 1 is everything in this walkthrough, delivered as a responsive web application — installable on field phones as a PWA, full desktop for the back office. Phase 2 deepens the field experience where browsers genuinely can't reach.</p>
+  </div>
+  <div class="rmap">
+    <div class="rphase">
+      <div class="ph">Phase 1 · This walkthrough</div>
+      <h4>Responsive web platform — all nine modules</h4>
+      <p>Desktop web for marketplace, underwriting, LMS, commissions, cockpit, communications and tenant administration. Mobile web (PWA) for field officers: installable, camera capture, geo-tagging, connectivity-aware queue-and-retry.</p>
+      <ul>
+        <li>Both lending models live: BC full-lifecycle and DSA originate-and-track</li>
+        <li>RBI machinery built in: household assessment gate, KFS register, consent ledger, audit trail</li>
+        <li>Multi-lender marketplace, three-tier underwriting, commission waterfalls, FLDG tracking</li>
+      </ul>
+    </div>
+    <div class="rphase p2">
+      <div class="ph">Phase 2 · Native field shell</div>
+      <h4>The same web app, wrapped for the last mile</h4>
+      <p>A thin native shell around the identical codebase — no rewrite, no second product — unlocking the capabilities rural field work eventually demands:</p>
+      <ul>
+        <li><b>Offline-first sync</b> — full day's work without signal; conflict-safe sync when coverage returns</li>
+        <li><b>Aadhaar biometric devices</b> — RD Service fingerprint/iris integration for assisted eKYC</li>
+        <li><b>Device-level security</b> — secure storage, remote wipe, MDM enrolment for field fleets</li>
+        <li><b>Vernacular voice input</b> — Tamil speech-to-text for field notes and PTP capture</li>
+        <li>App store presence for field-force credibility and managed rollouts</li>
+      </ul>
+      <p style="margin-top:10px;font-size:12px;color:#7F9C8F">Sequencing indicative; Phase 2 scope confirmed against field telemetry from Phase 1 — build what usage proves necessary, not what brochures suggest.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+</main>
+</div>
+
+<footer class="foot">
+  <span>Fynaptic Lending Platform — concept walkthrough. All names, numbers and lenders are illustrative.</span>
+  <span class="credit">Krishnan Vaidyanathan&nbsp;|&nbsp;Finconvenio Services Pvt Ltd&nbsp;|&nbsp;June 2026</span>
+  <span class="poweredby">POWERED BY
+    <span class="flochip">
+      <svg class="flomark" viewBox="0 0 22 24" width="15" height="16" aria-hidden="true">
+        <path d="M4.5 5.2 Q12 .8 19.8 3.6 Q12.6 3.4 5.4 8.4 Z" fill="#C8201A"/>
+        <rect x="4.5" y="10.4" width="11.6" height="4" rx="2" fill="#C8201A"/>
+        <circle cx="6.8" cy="19.3" r="3.1" fill="#1E8E5A"/>
+      </svg>
+      <span class="floword">flocamo</span><sup>®</sup>
+    </span>
+  </span>
+</footer>
+<div class="toast" id="toast"></div>
+<script>
+/* ---------- Screen annotation data (rules & logging only) ---------- */
+const JA = [
+ {t:"Sign in & routing", d:"One app for the whole network. The agent code decides everything downstream — Sub BC, model, products, territory.",
+  ad:"Senthil's code FYN-TN-0231 maps to Sri Amman Agencies under the BC model. The same login screen, with a DSA-series code, becomes a different machine — switch to Journey 2 to see it.",
+  rules:[["AUTH","Device-bound PIN + optional biometric; suspended codes blocked at login"],["ROUTE","Agent-code series resolves Sub BC, model and product menu — no manual selection, no wrong-channel files"],["LOG","Login time, device ID and app version recorded per session"]]},
+ {t:"Field officer home", d:"The day, prioritised: new leads, collections due, centre meetings — with sync status always visible.",
+  ad:"Today's work comes to Senthil ordered by the platform, not by memory. The offline queue indicator builds trust in patchy-network areas: zero pending means everything has reached the server.",
+  rules:[["TASK","Worklist generated nightly; EWS and DPD tasks outrank new leads"],["GEO","Route clustering keeps travel sane; visits geo-verified on arrival"],["LOG","Task open/complete times feed officer productivity scorecard"]]},
+ {t:"Product & enquiry", d:"Six products on one menu. Choosing one configures the whole journey — fields, documents, rules.",
+  ad:"Dairy selected: ₹60,000 over 24 months for a second milch animal. The product object carries its own document checklist, regulatory gates and lender panel — adding a product is configuration, not a build.",
+  rules:[["CONFIG","Product selection binds checklist, regulatory gates and lender panel for the file"],["DEDUPE","Mobile + PAN checked against existing enquiries before a new file opens"],["LOG","Enquiry creation stamped with officer, geo and time"]]},
+ {t:"KYC verification", d:"PAN, Aadhaar OTP, liveness and CKYC — four checks, a few minutes, no photocopies.",
+  ad:"Each verification is evidence captured at source: PAN name-match percentage, Aadhaar XML with address auto-fill, on-device liveness against the Aadhaar photo, CKYC registry lookup.",
+  rules:[["KYC","All four checks must pass before the file can proceed; failures route to manual review"],["PRIVACY","Aadhaar number masked everywhere; XML stored encrypted, consent-bound"],["LOG","Verification artefacts hashed and attached to the file"]]},
+ {t:"Household assessment — the RBI gate", d:"The screen most LOS products don't have. RBI's Microfinance Directions made household income assessment mandatory — here it is a first-class step, not a PDF upload.",
+  ad:"Household income ₹2.40L sits under the ₹3.00L ceiling; FOIR at 41% leaves headroom under the 50% cap. Both computed live, both blocking: the journey physically cannot proceed past a failed gate.",
+  rules:[["REG","₹3L household income ceiling enforced in-flow; breach stops the file with reasons"],["REG","FOIR ≤ 50% computed from declared + bureau obligations + proposed EMI"],["LOG","Full assessment written to the household register — inspection-ready"]],
+  reg:"<b>RBI Microfinance Directions, 2022.</b> Assessment of household income and repayment capacity is the lender's obligation — the platform makes it impossible to skip and trivial to prove."},
+ {t:"Documents & banking", d:"Geo-tagged captures, a parsed bank statement, and an insurance bundle — evidence, not paperwork.",
+  ad:"The statement parser corroborates the declared dairy income: society credits of ₹9,200–11,800 monthly, zero bounces. That consistency line is what moves a thin-file borrower from 'unscorable' to grade B+.",
+  rules:[["DOC","Checklist driven by product config; geo-tag mandatory on residence and asset photos"],["BSA","Parsed metrics stored as structured data, reusable at underwriting"],["LOG","Document capture location and time recorded against the file"]]},
+ {t:"Group lending (JLG) — secondary flow", d:"For group products: members, CGT/GRT progress and centre meetings — the social-collateral machinery, digitised.",
+  ad:"Magizham group is mid-CGT: two trainings done, one scheduled, GRT pending. Attendance history doubles as an early-warning signal later — falling attendance precedes falling collections.",
+  rules:[["JLG","Disbursement blocked until CGT complete and GRT passed"],["MEET","Centre meeting attendance captured per member per week"],["LOG","Group events feed both compliance records and EWS"]]},
+ {t:"Review & submit", d:"One geo-stamped, consent-bound package to the Marketplace Engine. The field officer's job is done in under 40 minutes.",
+  ad:"Everything green: KYC, the RBI gate, documents, consent. ENQ-2026-061-00482 now belongs to Module 02 — lender matching starts immediately and Lakshmi gets a Tamil WhatsApp confirmation.",
+  rules:[["GATE","Submit enabled only when every mandatory step is green — no partial files downstream"],["CONSENT","Bureau-pull and communications consent OTP-verified at submission"],["LOG","Submission geo, device and payload hash open the file's immutable audit trail"]]}
+];
+
+const JB = [
+ {t:"Sign in & routing — DSA model", d:"Same app, different machine. A DSA-series code reconfigures the journey: originate and track, not service and collect.",
+  ad:"FYN-DSA-1104 maps to Senthamarai Associates in Salem under the DSA model. Notice the routing card: servicing is lender-owned. No collections tasks will ever appear for this agent.",
+  rules:[["ROUTE","DSA-series codes load the DSA journey: 4 steps, no household gate, no collections module"],["SCOPE","DSA agents see origination and tracking only — servicing screens never render"],["LOG","Model resolution recorded; channel attribution fixed at login"]]},
+ {t:"Business profile", d:"MSME working capital starts with the business, not the household: entity, activity, vintage, requirement.",
+  ad:"Murugan Garments — seven years of job-work stitching in Ammapet, Salem — needs ₹4L for fabric ahead of Aadi season orders. Udyam and GSTIN captured up front because they drive the checks that follow.",
+  rules:[["CONFIG","MSME product binds a business-first checklist: Udyam, GST, banking mandatory"],["DEDUPE","PAN + GSTIN checked across the platform before file creation"],["LOG","Enquiry stamped with agent, geo and time"]]},
+ {t:"KYC & business checks", d:"Individual KYC plus business verification — Udyam status, GST filing discipline, premises geo-tag.",
+  ad:"GST returns filed through April and a stable turnover trend are underwriting gold for a ₹4L unsecured ticket. The platform pulls the evidence; nobody couriers photocopies.",
+  rules:[["KYB","Udyam active + GSTIN active are hard gates for the MSME product"],["GST","Turnover snapshot stored as structured data for the risk engine"],["LOG","Verification artefacts hashed to the file"]]},
+ {t:"Banking — mandatory, and the gate that doesn't fire", d:"For MSME, banking analysis is compulsory. And note the grey card: the RBI household gate is consciously absent.",
+  ad:"Credits of ₹3.2–3.8L monthly match 91% of GST turnover; two December cheque returns are flagged for the lender, not hidden. The household-assessment card states explicitly why it doesn't apply — regulatory machinery switching by product, visibly.",
+  rules:[["RULE","BSA mandatory for MSME; bounce events surfaced to lenders, never suppressed"],["REG","Microfinance gates (₹3L ceiling, FOIR 50%) scoped to MF products only — correct non-application is also compliance"],["LOG","Conduct flags recorded with the officer's explanation"]],
+  reg:"<b>Product-aware compliance.</b> The platform applies the Microfinance Directions where they apply — and provably nowhere else. Auditors care about both directions of that statement."},
+ {t:"Review & submit", d:"Four steps, one geo-stamped package, off to the same Marketplace Engine that priced the dairy loan.",
+  ad:"ENQ-2026-061-00517 enters the marketplace where MSME-appetite lenders compete. Murugan receives offers on WhatsApp; the agent's work is essentially complete.",
+  rules:[["GATE","Submit blocked until KYC, business checks and banking are green"],["CONSENT","Bureau + communications consent OTP-verified"],["LOG","Payload hash opens the audit trail"]]},
+ {t:"DSA tracker — originate, track, earn", d:"The DSA's whole world after submission: status timeline and commission. No servicing, no collections — by design.",
+  ad:"Three offers, customer chose Cauvery Capital, sanctioned ₹3.75L by day 3. Commission of ₹5,625 accrues automatically when the disbursement UTR posts — the agent never has to ask anyone where their money is.",
+  rules:[["TRACK","Lender status events stream to the tracker; queries answered through the platform"],["PAY","Commission accrues on UTR confirmation at the grid in force — 1.5% on disbursal"],["LOG","Channel attribution immutable: this file pays the DSA waterfall, ever after"]]}
+];
+
+/* ---------- State ---------- */
+let J = 'A';          // active journey
+let cur = 0;          // active screen index
+const arr = () => J === 'A' ? JA : JB;
+const ids = () => J === 'A'
+  ? ['a1','a2','a3','a4','a5','a6','a7','a8']
+  : ['b1','b2','b3','b4','b5','b6'];
+
+/* ---------- Journey & screen rendering ---------- */
+function setJourney(j){
+  J = j; cur = 0;
+  document.getElementById('JA').style.display = j==='A' ? 'block' : 'none';
+  document.getElementById('JB').style.display = j==='B' ? 'block' : 'none';
+  document.getElementById('jtabA').classList.toggle('on', j==='A');
+  document.getElementById('jtabB').classList.toggle('on', j==='B');
+  document.getElementById('jlgline').style.display = j==='A' ? 'block' : 'none';
+  buildDots(); render();
+}
+function buildDots(){
+  const d = document.getElementById('dots');
+  d.innerHTML = '';
+  ids().forEach((_,i)=>{
+    const dot = document.createElement('i');
+    dot.onclick = ()=>jump(i);
+    d.appendChild(dot);
+  });
+}
+function render(){
+  const list = ids(), data = arr()[cur];
+  list.forEach((id,i)=>document.getElementById(id).classList.toggle('on', i===cur));
+  document.querySelectorAll('#dots i').forEach((d,i)=>d.classList.toggle('on', i===cur));
+  document.getElementById('scrnum').textContent = cur+1;
+  document.getElementById('scrtot').textContent = list.length;
+  document.getElementById('scrtitle').textContent = data.t;
+  document.getElementById('scrdesc').textContent = data.d;
+  document.getElementById('a-title').textContent = data.t;
+  document.getElementById('a-desc').textContent = data.ad;
+  document.getElementById('a-rules').innerHTML = data.rules.map(r=>
+    '<div class="ruleline"><span class="rb">'+r[0]+'</span><span>'+r[1]+'</span></div>').join('');
+  document.getElementById('a-reg').innerHTML = data.reg ? '<div class="regnote">'+data.reg+'</div>' : '';
+  document.getElementById('prevBtn').disabled = cur===0;
+  document.getElementById('nextBtn').disabled = cur===list.length-1;
+}
+function step(n){ const L = ids().length; cur = Math.min(L-1, Math.max(0, cur+n)); render(); }
+function jump(i){ cur = i; render(); }
+function jumpA(i){ if(J!=='A'){ setJourney('A'); } cur = i; render(); }
+
+/* ---------- Module navigation ---------- */
+function nav(v, btn){
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.rail .mod').forEach(m=>m.classList.remove('active'));
+  const target = btn || document.querySelector('.rail .mod[data-v="'+v+'"]');
+  if(target) target.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(v==='fo') render();
+}
+
+/* ---------- Keyboard ---------- */
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('v-fo').classList.contains('on')) return;
+  if(e.key==='ArrowRight') step(1);
+  if(e.key==='ArrowLeft') step(-1);
+});
+
+/* ---------- Toast (light affordance for non-wired buttons) ---------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------- Init ---------- */
+buildDots(); render();
+</script>
+</body>
+</html>
